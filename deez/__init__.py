@@ -1,5 +1,6 @@
-__author__ = 'lemuelboyce@gmail.com'
-__version__ = '0.1.0'
+__author__ = 'Lemuel Boyce'
+__email__ = 'lemuelboyce@gmail.com'
+__version__ = '0.1.2'
 
 from .deez import Deez
 from .request import Request

@@ -21,8 +21,8 @@ class Deez:
         self.template_loader = TemplateLoader(settings)
         self.template_loader.find_templates()
 
-    def register_route(self, path: str, view_class):
-        self.router.register(path=path, view=view_class)
+    def register_route(self, path: str, resource_class):
+        self.router.register(path=path, resource=resource_class)
 
     def process_request(self, event, context):
         return self.router.route(event, context)

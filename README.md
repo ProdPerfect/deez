@@ -12,11 +12,11 @@ Note: The Deez router uses regex for path matching.
 `app.py`
 ```python
 from deez import Deez
-from deez.views import View
+from deez.views import Resource
 from deez.response import JsonResponse
 
 
-class HelloWorldView(View):
+class HelloWorldView(Resource):
     def get(self, request, *args, **kwargs):
         return JsonResponse(data={'message': 'hello world'})
 

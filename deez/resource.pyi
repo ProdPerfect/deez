@@ -2,7 +2,7 @@ from deez.request import Request
 from deez.response import Response
 
 
-class View:
+class Resource:
     def get_class_name(self) -> str:
         pass
 

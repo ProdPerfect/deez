@@ -1,10 +1,10 @@
 from deez.request import Request
 from deez.response import Response
-from deez.views import View
+from deez.resource import Resource
 
 
 class Middleware:
-    def __init__(self, view: View) -> None:
+    def __init__(self, view: Resource) -> None:
         pass
 
     def before_request(self, request: Request) -> Request:

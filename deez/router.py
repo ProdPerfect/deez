@@ -56,27 +56,27 @@ class Router:
         if not re_match:
             raise NotFound404(f'{method.upper()} \'{path}\' not found!')
 
-        view_class = self._routes[re_match.re.pattern]()
+        resource_class = self._routes[re_match.re.pattern]()
 
         request = Request(path, method, body=request_body, event=event,
                           headers=headers, context=context, url_params=url_params)
 
-        # middleware that needs to run before calling the view
+        # middleware that needs to run before calling the resource
         middleware = self._app.middleware
 
         for _, m in enumerate(middleware):
-            _request = m(view=view_class).before_request(request=request)
+            _request = m(resource=resource_class).before_request(request=request)
             if _request:
                 request = _request
 
         kwargs = re_match.groupdict()
-        response = view_class(method, request, **kwargs)
+        response = resource_class(method, request, **kwargs)
         if not response:
-            raise NoResponseError(f'{view_class.get_class_name()} did not return anything')
+            raise NoResponseError(f'{resource_class.get_class_name()} did not return anything')
 
         # middleware that needs to run before response
         for _, m in enumerate(reversed(middleware)):
-            _response = m(view=view_class).before_response(response=response)
+            _response = m(resource=resource_class).before_response(response=response)
             if _response:
                 response = _response
 
@@ -88,9 +88,9 @@ class Router:
         if path in self._routes:
             raise DuplicateRouteError(f"\"{path}\" already defined")
 
-    def register(self, path: str, view) -> None:
+    def register(self, path: str, resource) -> None:
         self._validate_path(path)
-        self._routes[path] = view
+        self._routes[path] = resource
         self._route_patterns.append(re.compile(path))
 
     def route(self, event: Dict, context: object) -> Any:

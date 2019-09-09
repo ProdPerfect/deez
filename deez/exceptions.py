@@ -2,15 +2,15 @@ class DeezError(RuntimeError):
     pass
 
 
-class ViewError(DeezError):
+class ResourceError(DeezError):
     pass
 
 
-class NoResponseError(ViewError):
+class NoResponseError(ResourceError):
     pass
 
 
-class NotFound404(ViewError):
+class NotFound404(ResourceError):
     pass
 
 
