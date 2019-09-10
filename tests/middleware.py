@@ -16,7 +16,7 @@ class TestMiddleware(Middleware):
         return request
 
     def before_response(self, response):
-        data = response._data
+        data = response.data
         res = {'statusCode': 200, **data}
-        response._data = res
+        response.data = res
         return response

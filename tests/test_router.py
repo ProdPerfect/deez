@@ -36,18 +36,28 @@ class RouterTestCase(unittest.TestCase):
         app.settings._reload()
         router = Router(app)
         router.register(r'^/hello/world$', HelloWorldResource)
-        response = router.route(event, {})
+        response = router.execute(event, {})
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
 
     def test_router_selects_most_specific_route(self):
         event['path'] = '/hello/world/1000/1000'
         self.router.register(r'^/hello/world/1000/1000', HelloWorldResource)
         self.router.register(r'^/hello/world/(?P<id>)\d{4}/(?P<pid>)\d{4}$', HelloWorldSpecificResource)
-        response = self.router.route(event, {})
+        response = self.router.execute(event, {})
         self.assertEqual(json.dumps({'message': 'hello world specific'}), response)
 
     def test_raises_404_when_route_not_found(self):
         self.router.register(r'^/hello/world/fail$', HelloWorldResource)
         with self.assertRaises(NotFound404) as e:
-            self.router.route(event, {})
+            self.router.execute(event, {})
         self.assertEqual("GET '/hello/world' not found!", e.exception.args[0])
+
+    def test_raises_404_response(self):
+        self.router.register(r'^/hello/world/fail$', HelloWorldResource)
+        response = self.router.route(event, {})
+        self.assertEqual({
+            'isBase64Encoded': False,
+            'statusCode': 404,
+            'body': "GET '/hello/world' not found!",
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}},
+            response)

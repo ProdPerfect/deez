@@ -2,7 +2,8 @@ import re
 from functools import lru_cache
 from typing import Any, Dict, Match, Optional
 
-from deez.exceptions import DuplicateRouteError, NoResponseError, NotFound404
+from deez.exceptions import BadRequest400, DuplicateRouteError, NoResponseError, NotAuthorized401, NotFound404, \
+    NotPermitted403
 from deez.request import Request
 
 
@@ -45,7 +46,7 @@ class Router:
         else:
             return matched_patterns[0]
 
-    def _execute(self, event=None, context=None) -> Any:
+    def execute(self, event=None, context=None) -> Any:
         request = Request(event, context=context)
         path = request.path
         method = request.http_method.lower()
@@ -91,4 +92,24 @@ class Router:
         self._route_patterns.append(re.compile(path))
 
     def route(self, event: Dict, context: object) -> Any:
-        return self._execute(event=event, context=context)
+        try:
+            return self.execute(event=event, context=context)
+        except BadRequest400 as e:
+            return self._make_response(400, data=e.args[0])
+        except NotAuthorized401 as e:
+            return self._make_response(401, data=e.args[0])
+        except NotPermitted403 as e:
+            return self._make_response(403, data=e.args[0])
+        except NotFound404 as e:
+            return self._make_response(404, data=e.args[0])
+
+    def _make_response(self, status_code, data, content_type='application/json'):
+        return {
+            'isBase64Encoded': False,
+            'statusCode': status_code,
+            'body': data,
+            'headers': {
+                'Content-Type': content_type,
+                'Access-Control-Allow-Origin': '*'
+            }
+        }

@@ -9,24 +9,24 @@ except ImportError:
 
 
 class Response:
-    TYPE = 'text'
+    TYPE = 'text/plain'
 
     def __init__(self, data=None):
-        self._data = data
+        self.data = data
 
     def render(self, *args, **kwargs):
-        return self._data
+        return self.data
 
 
 class JsonResponse(Response):
-    TYPE = 'json'
+    TYPE = 'application/json'
 
     def render(self, *args, **kwargs):
-        return json.dumps(self._data)
+        return json.dumps(self.data)
 
 
 class HTMLResponse(Response):
-    TYPE = 'html'
+    TYPE = 'text/html'
 
     def __init__(self, template_name: str = None, context: Dict = None, data=None) -> None:
         super().__init__(data=data)
