@@ -33,5 +33,9 @@ class Setting:
             self._loaded = True
         return getattr(self, item)
 
+    def _reload(self):
+        # only use for debugging purposes
+        self._setup()
+
 
 settings = SimpleLazyObject(lambda: Setting())
