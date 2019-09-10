@@ -22,6 +22,7 @@ class HelloWorldSpecificResource(HelloWorldResource):
 
 
 class RouterTestCase(unittest.TestCase):
+
     def setUp(self, *args, **kwargs) -> None:
         os.environ.setdefault('PROJECT_SETTINGS_MODULE', 'settings')
         app = Deez()
@@ -29,7 +30,7 @@ class RouterTestCase(unittest.TestCase):
         self.app = app
         self.router = Router(app)
 
-    @mock.patch('tests.settings.MIDDLEWARE', return_value=None)
+    @mock.patch('tests.settings.MIDDLEWARE', return_value=[])
     def test_can_route_correctly(self, *args, **kwargs):
         app = Deez()
         app.settings._reload()
