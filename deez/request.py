@@ -1,9 +1,49 @@
+import re
+from typing import Iterable
+
+REGEX = re.compile(r'(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])')
+
+
+# https://stackoverflow.com/a/29916095
+def _camel_case_split(identifier):
+    matches = re.finditer(REGEX, identifier)
+    split_string = []
+    previous = 0
+    for match in matches:
+        split_string.append(identifier[previous:match.start()])
+        previous = match.start()
+    split_string.append(identifier[previous:])
+    return split_string
+
+
 class Request:
-    def __init__(self, path, method, headers=None, event=None, context=None, body=None, url_params=None):
-        self.path = path
-        self.event = event
-        self.method = method
-        self.headers = headers
-        self.context = context
-        self.body = body if body else {}
-        self.url_params = url_params if url_params else {}
+    def __init__(self, event, context):
+        self.lambda_context = context
+        self._cleaned_event = {}
+        self._parse_event(event)
+
+    @staticmethod
+    def _fixup_keys(key):
+        """
+        Turns camel-case into snake-case
+        For example: queryStringParameters -> query_string_parameters
+
+        Note: This only done for the top-level keys.
+        """
+        return '_'.join(_camel_case_split(key)).lower()
+
+    def _parse_event(self, event: dict):
+        for k, v in event.items():
+            key = self._fixup_keys(k)
+            self._cleaned_event[key] = v
+            setattr(self, key, v)
+        return self
+
+    def __dir__(self) -> Iterable[str]:
+        return [k for k in self._cleaned_event.keys()]
+
+    def __str__(self):
+        return f'Request: {self._cleaned_event}'
+
+    def __getattr__(self, item):
+        return getattr(self, item)

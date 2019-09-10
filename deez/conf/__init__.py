@@ -34,7 +34,7 @@ class Setting:
         return getattr(self, item)
 
     def _reload(self):
-        # only use for debugging purposes
+        # only used for debugging purposes
         self._setup()
 
 

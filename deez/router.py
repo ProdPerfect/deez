@@ -46,11 +46,9 @@ class Router:
             return matched_patterns[0]
 
     def _execute(self, event=None, context=None) -> Any:
-        path = event['path']
-        method = event['httpMethod'].lower()
-        headers = event['headers']
-        url_params = event['queryStringParameters']
-        request_body = event['body']
+        request = Request(event, context=context)
+        path = request.path
+        method = request.http_method.lower()
 
         re_match = self._get_re_match(path=path, method=method)
         if not re_match:
@@ -58,8 +56,7 @@ class Router:
 
         resource_class = self._routes[re_match.re.pattern]()
 
-        request = Request(path, method, body=request_body, event=event,
-                          headers=headers, context=context, url_params=url_params)
+        request = Request(event, context=context)
 
         # middleware that needs to run before calling the resource
         middleware = self._app.middleware
