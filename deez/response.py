@@ -1,11 +1,12 @@
-import json
 from typing import Dict
 from deez.templates import TemplateLoader
 
 try:
     from jinja2 import Template
+    import ujson as json
 except ImportError:
     from deez.templates import Template
+    import json
 
 
 class Response:
