@@ -14,7 +14,7 @@ class Router:
         self._route_names = {}
         self._route_patterns = []
 
-    @lru_cache(maxsize=1000)
+    @lru_cache(maxsize=100)
     def _get_re_match(self, path: str, method: str) -> Optional[Match]:
         matched_patterns = [
             pattern.search(path)
@@ -56,8 +56,6 @@ class Router:
             raise NotFound404(f'{method.upper()} \'{path}\' not found!')
 
         resource_class = self._routes[re_match.re.pattern]()
-
-        request = Request(event, context=context)
 
         # middleware that needs to run before calling the resource
         middleware = self._app.middleware

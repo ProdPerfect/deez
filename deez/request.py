@@ -7,7 +7,6 @@ CAMELCASE_REGEX = re.compile(r'(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])')
 
 # https://stackoverflow.com/a/29916095
 # TODO: Think of a better way to do this, it's kind of slow.
-@lru_cache(maxsize=100)
 def _camel_case_split(identifier):
     matches = CAMELCASE_REGEX.finditer(identifier)
     split_string = []
@@ -26,6 +25,7 @@ class Request:
         self._parse_event(event)
 
     @staticmethod
+    @lru_cache(maxsize=100)
     def _fixup_keys(key):
         """
         Turns camel-case into snake-case
@@ -39,7 +39,6 @@ class Request:
         for k, v in event.items():
             key = self._fixup_keys(k)
             self._cleaned_event[key] = v
-            setattr(self, key, v)
         return self
 
     def __dir__(self) -> Iterable[str]:
@@ -49,4 +48,4 @@ class Request:
         return f'Request: {self._cleaned_event}'
 
     def __getattr__(self, item):
-        return getattr(self, item)
+        return self._cleaned_event[item]
