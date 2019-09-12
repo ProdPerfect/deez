@@ -2,14 +2,14 @@ import re
 from functools import lru_cache
 from typing import Iterable
 
-REGEX = re.compile(r'(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])')
+CAMELCASE_REGEX = re.compile(r'(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])')
 
 
 # https://stackoverflow.com/a/29916095
 # TODO: Think of a better way to do this, it's kind of slow.
 @lru_cache(maxsize=100)
 def _camel_case_split(identifier):
-    matches = re.finditer(REGEX, identifier)
+    matches = CAMELCASE_REGEX.finditer(identifier)
     split_string = []
     previous = 0
     for match in matches:

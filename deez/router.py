@@ -17,7 +17,7 @@ class Router:
     @lru_cache(maxsize=1000)
     def _get_re_match(self, path: str, method: str) -> Optional[Match]:
         matched_patterns = [
-            re.search(pattern, path)
+            pattern.search(path)
             for _, pattern in enumerate(self._route_patterns)
         ]
 
