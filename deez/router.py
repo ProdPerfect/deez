@@ -91,7 +91,9 @@ class Router:
 
     def route(self, event: Dict, context: object) -> Any:
         try:
-            return self.execute(event=event, context=context)
+            return self._make_response(
+                200, self.execute(event=event, context=context)
+            )
         except BadRequest400 as e:
             return self._make_response(400, data=e.args[0])
         except NotAuthorized401 as e:
