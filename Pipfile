@@ -7,8 +7,6 @@ verify_ssl = true
 twine = "*"
 
 [packages]
-jinja2 = "*"
-ujson = "*"
 
 [requires]
 python_version = "3.7"

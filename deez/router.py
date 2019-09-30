@@ -76,9 +76,10 @@ class Router:
             if _response:
                 response = _response
 
+        status_code = getattr(response, 'status_code') if hasattr(response, 'status_code') else 200
         if hasattr(response, 'render'):
-            return response.render(self._app.template_loader)
-        return response
+            return response.render(), status_code
+        return response, status_code
 
     def _validate_path(self, path: str) -> None:
         if path in self._routes:
@@ -91,9 +92,8 @@ class Router:
 
     def route(self, event: Dict, context: object) -> Any:
         try:
-            return self._make_response(
-                201, self.execute(event=event, context=context)
-            )
+            response, status_code = self.execute(event=event, context=context)
+            return self._make_response(status_code, response)
         except BadRequest400 as e:
             return self._make_response(400, data=e.args[0])
         except NotAuthorized401 as e:
