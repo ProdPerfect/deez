@@ -16,6 +16,11 @@ class HelloWorldResource(Resource):
         return JsonResponse(data={'message': 'hello world'})
 
 
+class HelloWorldResource2(Resource):
+    def get(self, request, *args, **kwargs):
+        return JsonResponse(data={'message': 'hello world'}, status_code=201)
+
+
 class HelloWorldSpecificResource(HelloWorldResource):
     def get(self, request, *args, **kwargs):
         return JsonResponse(data={'message': 'hello world specific'})
@@ -39,6 +44,16 @@ class RouterTestCase(unittest.TestCase):
         response, status_code = router.execute(event, {})
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
+
+    @mock.patch('tests.settings.MIDDLEWARE', return_value=[])
+    def test_respects_response_status_code(self, *args, **kwargs):
+        app = Deez()
+        app.settings._reload()
+        router = Router(app)
+        router.register(r'^/hello/world$', HelloWorldResource2)
+        response, status_code = router.execute(event, {})
+        self.assertEqual(json.dumps({'message': 'hello world'}), response)
+        self.assertEqual(status_code, 201)
 
     def test_router_selects_most_specific_route(self):
         event['path'] = '/hello/world/1000/1000'
