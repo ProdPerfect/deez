@@ -17,21 +17,22 @@ class HelloWorldResource(Resource):
 
 class MiddlewareTestCase(unittest.TestCase):
 
-    def setUp(self) -> None:
-        os.environ.setdefault('PROJECT_SETTINGS_MODULE', 'tests.settings')
-
-    @mock.patch('tests.settings.MIDDLEWARE', ['tests.middleware.TestMiddleware'])
     def test_can_route_correctly(self):
-        app = Deez()
-        router = Router(app)
-        router.register(r'^/hello/world$', HelloWorldResource)
-        response = router.route(event, {})
-        self.assertEqual(response, json.dumps(
-            {
-                'statusCode': 200,
-                'message': 'hello world',
-                'user': {
-                    'name': 'Lemi',
-                    'age': 1000000
+        os.environ.setdefault('PROJECT_SETTINGS_MODULE', 'tests.settings')
+        with mock.patch('tests.settings.MIDDLEWARE', ['tests.middleware.TestMiddleware']) as m:
+            app = Deez()
+            router = Router(app)
+            router.register(r'^/hello/world$', HelloWorldResource)
+            response = router.route(event, {})
+            self.assertEqual(
+                response,
+                {
+                    'isBase64Encoded': False, 'statusCode': 200,
+                    'body': '{"statusCode": 200, "message": "hello world", "user": {"name": "Lemi", "age": 1000000}}',
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    }
                 }
-            }))
+            )
+        mock.patch.stopall()

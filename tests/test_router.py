@@ -35,7 +35,6 @@ class RouterTestCase(unittest.TestCase):
         self.app = app
         self.router = Router(app)
 
-    @mock.patch('tests.settings.MIDDLEWARE', return_value=[])
     def test_can_route_correctly(self, *args, **kwargs):
         app = Deez()
         app.settings._reload()
@@ -45,7 +44,6 @@ class RouterTestCase(unittest.TestCase):
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
 
-    @mock.patch('tests.settings.MIDDLEWARE', return_value=[])
     def test_respects_response_status_code(self, *args, **kwargs):
         app = Deez()
         app.settings._reload()
