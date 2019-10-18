@@ -1,7 +1,6 @@
 import json
 import os
 import unittest
-from unittest import mock
 
 from deez import Deez
 from deez.exceptions import NotFound404

@@ -1,4 +1,3 @@
-import json
 import os
 import unittest
 from unittest import mock
@@ -19,7 +18,7 @@ class MiddlewareTestCase(unittest.TestCase):
 
     def test_can_route_correctly(self):
         os.environ.setdefault('PROJECT_SETTINGS_MODULE', 'tests.settings')
-        with mock.patch('tests.settings.MIDDLEWARE', ['tests.middleware.TestMiddleware']) as m:
+        with mock.patch('tests.settings.MIDDLEWARE', ['tests.middleware.TestMiddleware']):
             app = Deez()
             router = Router(app)
             router.register(r'^/hello/world$', HelloWorldResource)
