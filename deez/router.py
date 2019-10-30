@@ -76,7 +76,10 @@ class Router:
             if _response:
                 response = _response
 
-        status_code = getattr(response, 'status_code') if hasattr(response, 'status_code') else 200
+        status_code = 200
+        if hasattr(response, 'status_code'):
+            status_code = response.status_code
+
         if hasattr(response, 'render'):
             return response.render(), status_code
         return response, status_code

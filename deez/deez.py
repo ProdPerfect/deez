@@ -6,16 +6,16 @@ from deez.utils import resolve_middleware_classes
 class Deez:
     def __init__(self):
         self.router = None
+        self.settings = settings
+
         self._setup()
 
     def _setup(self):
-        self.settings = settings
         self.router = Router(self)
 
-        middleware = settings.MIDDLEWARE
-        if not middleware:
-            middleware = []
-
+        middleware = []
+        if hasattr(self.settings, 'MIDDLEWARE'):
+            middleware = self.settings.MIDDLEWARE
         self.middleware = resolve_middleware_classes(middleware)
 
     def register_route(self, path: str, resource_class):

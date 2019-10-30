@@ -42,7 +42,7 @@ class Request:
         return self
 
     def __dir__(self) -> Iterable[str]:
-        return [k for k in self._cleaned_event.keys()]
+        return self._cleaned_event.keys()
 
     def __str__(self):
         return f'Request: {self._cleaned_event}'
