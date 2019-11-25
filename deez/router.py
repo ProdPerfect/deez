@@ -30,14 +30,25 @@ class Router:
                 if match and hasattr(self._routes[match.re.pattern], method)
             ]
 
+            best_match_count = len(best_match)
+
             # method required to serve this request was not implemented
-            if not best_match:
+            if best_match_count == 0:
                 return None
+
+            if best_match_count == 1:
+                return best_match[0]
 
             best_pattern = None
             best_group_count = 0
 
             for _, best in enumerate(best_match):
+                re_pattern = best.re.pattern
+
+                if re_pattern in self._routes:
+                    best_pattern = best
+                    break
+
                 groups_len = len(best.groups())
                 if groups_len > best_group_count:
                     best_pattern = best
@@ -68,7 +79,7 @@ class Router:
         kwargs = re_match.groupdict()
         response = resource_class(method, request, **kwargs)
         if not response:
-            raise NoResponseError(f'{resource_class.get_class_name()} did not return anything')
+            raise NoResponseError(f'{resource_class.get_class_name()} did not return a response')
 
         # middleware that needs to run before response
         for _, m in enumerate(reversed(middleware)):

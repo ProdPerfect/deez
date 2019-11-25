@@ -12,7 +12,7 @@ Note: The Deez router uses regex for path matching.
 `app.py`
 ```python
 from deez import Deez
-from deez.views import Resource
+from deez.resource import Resource
 from deez.response import JsonResponse
 
 

@@ -9,7 +9,7 @@ class Resource:
 
     def __call__(self, method, *args, **kwargs):
         if not hasattr(self, method):
-            raise ResourceError(f'{method.upper()} method not implemented!')
+            raise ResourceError(f"{self.get_class_name()}'s '{method}' method not implemented!")
         try:
             return getattr(self, method)(*args, **kwargs)
         except TypeError as e:
