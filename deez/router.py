@@ -44,8 +44,9 @@ class Router:
 
             for _, best in enumerate(best_match):
                 re_pattern = best.re.pattern
-
-                if re_pattern in self._routes:
+                # TODO: Fix this later
+                exact_pattern = self._routes.get(re_pattern)
+                if exact_pattern:
                     best_pattern = best
                     break
 
