@@ -30,7 +30,8 @@ class MiddlewareTestCase(unittest.TestCase):
                     'body': '{"statusCode": 200, "message": "hello world", "user": {"name": "Lemi", "age": 1000000}}',
                     'headers': {
                         'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*'
+                        'Access-Control-Allow-Origin': '*',
+                        'X-Content-Type-Options': 'nosniff'
                     }
                 }
             )

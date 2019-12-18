@@ -125,6 +125,7 @@ class Router:
             'body': data,
             'headers': {
                 'Content-Type': content_type,
-                'Access-Control-Allow-Origin': '*'
+                'Access-Control-Allow-Origin': '*',
+                'X-Content-Type-Options': 'nosniff'
             }
         }

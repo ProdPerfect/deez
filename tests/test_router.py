@@ -87,5 +87,8 @@ class RouterTestCase(unittest.TestCase):
             'isBase64Encoded': False,
             'statusCode': 404,
             'body': "GET '/hello/world' not found!",
-            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'}},
-            response)
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'X-Content-Type-Options': 'nosniff'
+            }}, response)
