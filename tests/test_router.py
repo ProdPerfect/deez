@@ -30,6 +30,11 @@ class HelloWorldResource3(HelloWorldResource):
         return JsonResponse(data={'message': 'hello world 3'})
 
 
+class HelloWorldResource4(HelloWorldResource):
+    def get(self, request, *args, **kwargs):
+        return JsonResponse(data={'message': 'hello world 3'}, headers={'X-Lemi-Gang': 'Yeet'})
+
+
 class RouterTestCase(unittest.TestCase):
 
     def setUp(self, *args, **kwargs) -> None:
@@ -44,7 +49,7 @@ class RouterTestCase(unittest.TestCase):
         app.settings._reload()
         router = Router(app)
         router.register(r'^/hello/world$', HelloWorldResource)
-        response, status_code = router.execute(event, {})
+        response, status_code, _ = router.execute(event, {})
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
 
@@ -53,7 +58,7 @@ class RouterTestCase(unittest.TestCase):
         app.settings._reload()
         router = Router(app)
         router.register(r'^/hello/world$', HelloWorldResource2)
-        response, status_code = router.execute(event, {})
+        response, status_code, _ = router.execute(event, {})
         self.assertEqual(json.dumps({'message': 'hello world 2'}), response)
         self.assertEqual(status_code, 201)
 
@@ -61,9 +66,18 @@ class RouterTestCase(unittest.TestCase):
         event['path'] = '/hello/world/1000/1000'
         self.router.register(r'^/hello/world/1000/1000', HelloWorldResource)
         self.router.register(r'^/hello/world/(?P<id>)\d{4}/(?P<pid>)\d{4}$', HelloWorldResource3)
-        response, status_code = self.router.execute(event, {})
+        response, status_code, _ = self.router.execute(event, {})
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
+
+    def test_user_provided_headers_are_returned_in_response(self):
+        event['path'] = '/hello/world/1000/1000'
+        self.router.register(r'^/hello/world/(?P<id>)\d{4}/(?P<pid>)\d{4}$', HelloWorldResource4)
+        response = self.router.route(event, {})
+        expected_headers = {'Access-Control-Allow-Origin': '*', 'X-Content-Type-Options': 'nosniff',
+                            'Content-Type': 'application/json', 'X-Lemi-Gang': 'Yeet'}
+
+        self.assertEqual(response['headers'], expected_headers)
 
     def test_resource_methods_not_implemented(self):
         _event = copy.deepcopy(event)

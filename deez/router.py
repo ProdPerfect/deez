@@ -6,6 +6,11 @@ from deez.exceptions import BadRequest400, DuplicateRouteError, NoResponseError,
     NotPermitted403
 from deez.request import Request
 
+_default_headers = {
+    'Access-Control-Allow-Origin': '*',
+    'X-Content-Type-Options': 'nosniff'
+}
+
 
 class Router:
     def __init__(self, app):
@@ -88,13 +93,14 @@ class Router:
             if _response:
                 response = _response
 
+        headers = response.headers
         status_code = 200
         if hasattr(response, 'status_code'):
             status_code = response.status_code
 
         if hasattr(response, 'render'):
-            return response.render(), status_code
-        return response, status_code
+            return response.render(), status_code, headers
+        return response, status_code, headers
 
     def _validate_path(self, path: str) -> None:
         if path in self._routes:
@@ -107,8 +113,8 @@ class Router:
 
     def route(self, event: Dict, context: object) -> Any:
         try:
-            response, status_code = self.execute(event=event, context=context)
-            return self._make_response(status_code, response)
+            response, status_code, headers = self.execute(event=event, context=context)
+            return self._make_response(status_code, response, extra_headers=headers)
         except BadRequest400 as e:
             return self._make_response(400, data=e.args[0])
         except NotAuthorized401 as e:
@@ -118,14 +124,16 @@ class Router:
         except NotFound404 as e:
             return self._make_response(404, data=e.args[0])
 
-    def _make_response(self, status_code, data, content_type='application/json'):
-        return {
+    def _make_response(self, status_code, data, content_type='application/json', extra_headers=None) -> Dict:
+        default_headers = _default_headers
+        default_headers['Content-Type'] = content_type
+        if extra_headers:
+            default_headers.update(**extra_headers)
+
+        response = {
             'isBase64Encoded': False,
             'statusCode': status_code,
             'body': data,
-            'headers': {
-                'Content-Type': content_type,
-                'Access-Control-Allow-Origin': '*',
-                'X-Content-Type-Options': 'nosniff'
-            }
+            'headers': default_headers
         }
+        return response
