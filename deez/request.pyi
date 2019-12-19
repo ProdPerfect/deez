@@ -1,18 +1,18 @@
-from typing import Any, Dict, NoReturn, Optional, Union
+from typing import Any, Dict, Optional, Union
 
 
 class Request:
-    def __init__(self, event: Dict[str, Union], context: Any) -> NoReturn:
+    def __init__(self, event: Dict[str, Union], context: Any) -> None:
         self.path = None
         self.body = None
-        self.headers: Dict[str, Union] = None
-        self.resource: str = None
-        self.identity: Dict[str, Union] = None
-        self.http_method: str = None
-        self.stage_variables: Dict[str, str] = None
-        self.path_parameters: Dict[str, str] = None
-        self.request_context: Dict[str, Union] = None
-        self.query_string_parameters: Optional[Dict[str, str]] = None
+        self.headers: Optional[Dict[str, Union]] = None
+        self.resource: Optional[str] = None
+        self.identity: Optional[Dict[str, Union]] = None
+        self.http_method: Optional[str] = None
+        self.stage_variables: Optional[Dict[str, str]] = None
+        self.path_parameters: Optional[Dict[str, str]] = None
+        self.request_context: Optional[Dict[str, Union]] = None
+        self.query_string_parameters: Optional[Optional[Dict[str, str]]] = None
 
         self.lambda_context: Any = context
         self._cleaned_event: Dict = event

@@ -6,7 +6,7 @@ import unittest
 from deez import Deez
 from deez.exceptions import NotFound404, ResourceError
 from deez.resource import Resource
-from deez.response import JsonResponse
+from deez.response import JsonResponse, NoContentResponse
 from deez.router import Router
 from tests.mock_event import event
 
@@ -35,6 +35,11 @@ class HelloWorldResource4(HelloWorldResource):
         return JsonResponse(data={'message': 'hello world 3'}, headers={'X-Lemi-Gang': 'Yeet'})
 
 
+class NotContentResource(HelloWorldResource):
+    def get(self, request, *args, **kwargs):
+        return NoContentResponse()
+
+
 class RouterTestCase(unittest.TestCase):
 
     def setUp(self, *args, **kwargs) -> None:
@@ -49,7 +54,7 @@ class RouterTestCase(unittest.TestCase):
         app.settings._reload()
         router = Router(app)
         router.register(r'^/hello/world$', HelloWorldResource)
-        response, status_code, _ = router.execute(event, {})
+        response, status_code, _, _ = router.execute(event, {})
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
 
@@ -58,7 +63,7 @@ class RouterTestCase(unittest.TestCase):
         app.settings._reload()
         router = Router(app)
         router.register(r'^/hello/world$', HelloWorldResource2)
-        response, status_code, _ = router.execute(event, {})
+        response, status_code, _, _ = router.execute(event, {})
         self.assertEqual(json.dumps({'message': 'hello world 2'}), response)
         self.assertEqual(status_code, 201)
 
@@ -66,7 +71,7 @@ class RouterTestCase(unittest.TestCase):
         event['path'] = '/hello/world/1000/1000'
         self.router.register(r'^/hello/world/1000/1000', HelloWorldResource)
         self.router.register(r'^/hello/world/(?P<id>)\d{4}/(?P<pid>)\d{4}$', HelloWorldResource3)
-        response, status_code, _ = self.router.execute(event, {})
+        response, status_code, _, _ = self.router.execute(event, {})
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
 
@@ -78,6 +83,14 @@ class RouterTestCase(unittest.TestCase):
                             'Content-Type': 'application/json', 'X-Lemi-Gang': 'Yeet'}
 
         self.assertEqual(response['headers'], expected_headers)
+
+    def test_no_content_response(self):
+        _event = copy.deepcopy(event)
+        _event['path'] = '/no-content'
+        self.router.register(r'^/no-content$', NotContentResource)
+        response = self.router.route(_event, {})
+        expected_headers = {'Access-Control-Allow-Origin': '*', 'X-Content-Type-Options': 'nosniff'}
+        self.assertEqual(expected_headers, response['headers'])
 
     def test_resource_methods_not_implemented(self):
         _event = copy.deepcopy(event)

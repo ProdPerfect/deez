@@ -1,3 +1,4 @@
+import copy
 import re
 from functools import lru_cache
 from typing import Any, Dict, Match, Optional
@@ -5,11 +6,6 @@ from typing import Any, Dict, Match, Optional
 from deez.exceptions import BadRequest400, DuplicateRouteError, NoResponseError, NotAuthorized401, NotFound404, \
     NotPermitted403
 from deez.request import Request
-
-_default_headers = {
-    'Access-Control-Allow-Origin': '*',
-    'X-Content-Type-Options': 'nosniff'
-}
 
 
 class Router:
@@ -95,12 +91,13 @@ class Router:
 
         headers = response.headers
         status_code = 200
+        content_type = response.content_type
         if hasattr(response, 'status_code'):
             status_code = response.status_code
 
         if hasattr(response, 'render'):
-            return response.render(), status_code, headers
-        return response, status_code, headers
+            return response.render(), status_code, headers, content_type
+        return response, status_code, headers, content_type
 
     def _validate_path(self, path: str) -> None:
         if path in self._routes:
@@ -113,20 +110,27 @@ class Router:
 
     def route(self, event: Dict, context: object) -> Any:
         try:
-            response, status_code, headers = self.execute(event=event, context=context)
-            return self._make_response(status_code, response, extra_headers=headers)
+            response, status_code, headers, content_type = self.execute(event=event, context=context)
+            return self._make_response(status_code, response,
+                                       content_type=content_type, extra_headers=headers)
         except BadRequest400 as e:
-            return self._make_response(400, data=e.args[0])
+            return self._make_response(400, data=e.args[0], content_type='application/json')
         except NotAuthorized401 as e:
-            return self._make_response(401, data=e.args[0])
+            return self._make_response(401, data=e.args[0], content_type='application/json')
         except NotPermitted403 as e:
-            return self._make_response(403, data=e.args[0])
+            return self._make_response(403, data=e.args[0], content_type='application/json')
         except NotFound404 as e:
-            return self._make_response(404, data=e.args[0])
+            return self._make_response(404, data=e.args[0], content_type='application/json')
 
-    def _make_response(self, status_code, data, content_type='application/json', extra_headers=None) -> Dict:
-        default_headers = _default_headers
-        default_headers['Content-Type'] = content_type
+    def _make_response(self, status_code, data, content_type=None, extra_headers=None) -> Dict:
+        default_headers = {
+            'Access-Control-Allow-Origin': '*',
+            'X-Content-Type-Options': 'nosniff'
+        }
+
+        if content_type:
+            default_headers['Content-Type'] = content_type
+
         if extra_headers:
             default_headers.update(**extra_headers)
 
