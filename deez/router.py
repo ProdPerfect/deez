@@ -1,4 +1,3 @@
-import copy
 import re
 from functools import lru_cache
 from typing import Any, Dict, Match, Optional
@@ -72,6 +71,7 @@ class Router:
 
         # middleware that needs to run before calling the resource
         middleware = self._app.middleware
+        middleware_reversed = self._app.middleware_reversed
 
         for _, m in enumerate(middleware):
             _request = m(resource=resource_class).before_request(request=request)
@@ -84,7 +84,7 @@ class Router:
             raise NoResponseError(f'{resource_class.get_class_name()} did not return a response')
 
         # middleware that needs to run before response
-        for _, m in enumerate(reversed(middleware)):
+        for _, m in enumerate(middleware_reversed):
             _response = m(resource=resource_class).before_response(response=response)
             if _response:
                 response = _response
