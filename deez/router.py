@@ -1,9 +1,7 @@
 import re
 from functools import lru_cache
-from typing import Any, Dict, Match, Optional
 
-from deez.exceptions import BadRequest400, DuplicateRouteError, NoResponseError, NotAuthorized401, NotFound404, \
-    NotPermitted403
+from deez.exceptions import BadRequest, DuplicateRouteError, NoResponseError, NotFound, PermissionDenied, UnAuthorized
 from deez.request import Request
 
 
@@ -14,8 +12,8 @@ class Router:
         self._route_names = {}
         self._route_patterns = []
 
-    @lru_cache(maxsize=100)
-    def _get_re_match(self, path: str, method: str) -> Optional[Match]:
+    @lru_cache(maxsize=1000)
+    def _get_re_match(self, path, method):
         matched_patterns = [
             pattern.search(path)
             for _, pattern in enumerate(self._route_patterns)
@@ -58,14 +56,14 @@ class Router:
         else:
             return matched_patterns[0]
 
-    def execute(self, event=None, context=None) -> Any:
+    def execute(self, event=None, context=None):
         request = Request(event, context=context)
         path = request.path
         method = request.http_method.lower()
 
         re_match = self._get_re_match(path=path, method=method)
         if not re_match:
-            raise NotFound404(f'{method.upper()} \'{path}\' not found!')
+            raise NotFound(f'{method.upper()} \'{path}\' not found!')
 
         resource_class = self._routes[re_match.re.pattern]()
 
@@ -79,7 +77,7 @@ class Router:
                 request = _request
 
         kwargs = re_match.groupdict()
-        response = resource_class(method, request, **kwargs)
+        response = resource_class.dispatch(method=method, request=request, **kwargs)
         if not response:
             raise NoResponseError(f'{resource_class.get_class_name()} did not return a response')
 
@@ -99,30 +97,30 @@ class Router:
             return response.render(), status_code, headers, content_type
         return response, status_code, headers, content_type
 
-    def _validate_path(self, path: str) -> None:
+    def _validate_path(self, path):
         if path in self._routes:
             raise DuplicateRouteError(f"\"{path}\" already defined")
 
-    def register(self, path: str, resource) -> None:
+    def register(self, path, resource):
         self._validate_path(path)
         self._routes[path] = resource
         self._route_patterns.append(re.compile(path))
 
-    def route(self, event: Dict, context: object) -> Any:
+    def route(self, event, context):
         try:
             response, status_code, headers, content_type = self.execute(event=event, context=context)
             return self._make_response(status_code, response,
                                        content_type=content_type, extra_headers=headers)
-        except BadRequest400 as e:
-            return self._make_response(400, data=e.args[0], content_type='application/json')
-        except NotAuthorized401 as e:
-            return self._make_response(401, data=e.args[0], content_type='application/json')
-        except NotPermitted403 as e:
-            return self._make_response(403, data=e.args[0], content_type='application/json')
-        except NotFound404 as e:
-            return self._make_response(404, data=e.args[0], content_type='application/json')
+        except BadRequest as e:
+            return self._make_response(400, data=e.args[0])
+        except UnAuthorized as e:
+            return self._make_response(401, data=e.args[0])
+        except PermissionDenied as e:
+            return self._make_response(403, data=e.args[0])
+        except NotFound as e:
+            return self._make_response(404, data=e.args[0])
 
-    def _make_response(self, status_code, data, content_type=None, extra_headers=None) -> Dict:
+    def _make_response(self, status_code, data, content_type='application/json', extra_headers=None):
         default_headers = {
             'Access-Control-Allow-Origin': '*',
             'X-Content-Type-Options': 'nosniff'

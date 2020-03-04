@@ -1,33 +1,29 @@
 import json
-from typing import Any, Dict
 
 
 class Response:
 
-    def __init__(self, data: Any = None,
-                 status_code: int = 200,
-                 headers: Dict[str, str] = None,
-                 content_type: str = None) -> None:
+    def __init__(self, data=None, status_code=200, headers=None, content_type=None):
         self.data = data
         self.headers = headers
         self.status_code = status_code
         self.content_type = content_type
 
-    def render(self, *args, **kwargs) -> Any:
+    def render(self, *args, **kwargs):
         return self.data
 
 
 class NoContentResponse(Response):
-    def __init__(self, headers: Dict[str, str] = None):
+    def __init__(self, headers=None):
         super().__init__(headers=headers, status_code=204)
 
-    def render(self, *args, **kwargs) -> Any:
+    def render(self, *args, **kwargs):
         return None
 
 
 class JsonResponse(Response):
-    def __init__(self, data: Any = None, status_code: int = 200, headers: Dict[str, str] = None):
+    def __init__(self, data=None, status_code=200, headers=None):
         super().__init__(data=data, status_code=status_code, headers=headers, content_type='application/json')
 
-    def render(self, *args, **kwargs) -> str:
+    def render(self, *args, **kwargs):
         return json.dumps(self.data)

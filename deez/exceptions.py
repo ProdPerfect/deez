@@ -10,19 +10,19 @@ class NoResponseError(ResourceError):
     pass
 
 
-class BadRequest400(ResourceError):
+class BadRequest(ResourceError):
     pass
 
 
-class NotAuthorized401(ResourceError):
+class UnAuthorized(ResourceError):
     pass
 
 
-class NotPermitted403(ResourceError):
+class PermissionDenied(ResourceError):
     pass
 
 
-class NotFound404(ResourceError):
+class NotFound(ResourceError):
     pass
 
 

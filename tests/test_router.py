@@ -4,7 +4,7 @@ import os
 import unittest
 
 from deez import Deez
-from deez.exceptions import NotFound404, ResourceError
+from deez.exceptions import NotFound, ResourceError
 from deez.resource import Resource
 from deez.response import JsonResponse, NoContentResponse
 from deez.router import Router
@@ -103,7 +103,7 @@ class RouterTestCase(unittest.TestCase):
 
     def test_raises_404_when_route_not_found(self):
         self.router.register(r'^/hello/world/fail$', HelloWorldResource)
-        with self.assertRaises(NotFound404) as e:
+        with self.assertRaises(NotFound) as e:
             self.router.execute(event, {})
         self.assertEqual("GET '/hello/world' not found!", e.exception.args[0])
 

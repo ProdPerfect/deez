@@ -1,6 +1,6 @@
+import json
 import re
 from functools import lru_cache
-from typing import Iterable
 
 CAMELCASE_REGEX = re.compile(r'(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])')
 
@@ -18,11 +18,39 @@ def _camel_case_split(identifier):
     return split_string
 
 
+class Post:
+    def __init__(self, body):
+        self._data = None
+        self._setup(body)
+
+    def _setup(self, body):
+        if isinstance(body, str):
+            self._data = json.loads(body)
+
+    def get(self, key):
+        return self._data.get(key)
+
+
+class Get:
+    def __init__(self, params):
+        self._data = None
+        self._setup(params)
+
+    def _setup(self, params):
+        self._data = params
+
+    def get(self, key):
+        return self._data.get(key)
+
+
 class Request:
     def __init__(self, event, context):
         self.lambda_context = context
         self._cleaned_event = {}
         self._parse_event(event)
+
+        self.GET = Get(event.get('queryStringParameters', {}))
+        self.POST = Post(event.get('body'))
 
     @staticmethod
     @lru_cache(maxsize=100)
@@ -35,13 +63,13 @@ class Request:
         """
         return '_'.join(_camel_case_split(key)).lower()
 
-    def _parse_event(self, event: dict):
+    def _parse_event(self, event):
         for k, v in event.items():
             key = self._fixup_keys(k)
             self._cleaned_event[key] = v
         return self
 
-    def __dir__(self) -> Iterable[str]:
+    def __dir__(self):
         return self._cleaned_event.keys()
 
     def __str__(self):

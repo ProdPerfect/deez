@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-from setuptools import setup
+from setuptools import find_packages, setup
 
-from deez import __author__, __email__, __version__
+from deez.__version__ import __author__, __email__, __version__
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -13,7 +13,7 @@ setup(name='deez',
       long_description_content_type='text/markdown',
       author=__author__,
       author_email=__email__,
-      packages=['deez', 'deez.conf'],
+      packages=find_packages(exclude=["tests"]),
       url='https://github.com/rhymiz/deez',
       include_package_data=True,
       zip_safe=False,

@@ -173,7 +173,7 @@ cmake-build-*/
 *.iws
 
 # IntelliJ
-out/
+stub/
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/

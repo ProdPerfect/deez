@@ -24,7 +24,7 @@ class Setting:
         for setting in dir(imp):
             setattr(self, setting, getattr(imp, setting))
 
-    def __dir__(self) -> Iterable[str]:
+    def __dir__(self):
         return [k for k in self.__dict__.keys() if k.isupper()]
 
     def __getattr__(self, item):

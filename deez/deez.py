@@ -1,3 +1,5 @@
+from typing import Optional
+
 from deez.conf import settings
 from deez.router import Router
 from deez.utils import resolve_middleware_classes
@@ -5,7 +7,7 @@ from deez.utils import resolve_middleware_classes
 
 class Deez:
     def __init__(self) -> None:
-        self.router = None
+        self.router: Optional[Router] = None
         self.settings = settings
         self.middleware = []
         self.middleware_reversed = []
