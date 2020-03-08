@@ -8,7 +8,7 @@ from deez.utils import resolve_middleware_classes
 
 class Deez:
     def __init__(self) -> None:
-        self.router: Router = None
+        self.router: Router
         self.settings = settings
         self.middleware: List[Middleware] = []
         self.middleware_reversed: Iterable[Middleware] = []
