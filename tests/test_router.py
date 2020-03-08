@@ -3,7 +3,7 @@ import json
 import os
 import unittest
 
-from deez import Deez
+from deez.deez import Deez
 from deez.exceptions import NotFound, ResourceError
 from deez.resource import Resource
 from deez.response import JsonResponse, NoContentResponse

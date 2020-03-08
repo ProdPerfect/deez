@@ -1,3 +1,5 @@
+from typing import List
+
 DEBUG = False
-MIDDLEWARE = []
+MIDDLEWARE: List[str] = []
 TEMPLATE_DIR = None

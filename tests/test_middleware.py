@@ -2,7 +2,7 @@ import os
 import unittest
 from unittest import mock
 
-from deez import Deez
+from deez.deez import Deez
 from deez.resource import Resource
 from deez.response import JsonResponse
 from deez.router import Router

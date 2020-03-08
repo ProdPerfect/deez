@@ -1,13 +1,14 @@
 import json
 import re
 from functools import lru_cache
+from typing import Any, Dict, List, Optional
 
 CAMELCASE_REGEX = re.compile(r'(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])')
 
 
 # https://stackoverflow.com/a/29916095
 # TODO: Think of a better way to do this, it's kind of slow.
-def _camel_case_split(identifier):
+def _camel_case_split(identifier: str) -> List[str]:
     matches = CAMELCASE_REGEX.finditer(identifier)
     split_string = []
     previous = 0
@@ -18,43 +19,55 @@ def _camel_case_split(identifier):
     return split_string
 
 
+class Header:
+    def __init__(self, headers: Dict[str, str]) -> None:
+        self._headers = headers
+
+    def __getattr__(self, item: str) -> Optional[str]:
+        return self._headers.get(item.lower())
+
+
 class Post:
-    def __init__(self, body):
-        self._data = None
-        self._setup(body)
+    def __init__(self, body: str) -> None:
+        self.data = self._loads(body)
 
-    def _setup(self, body):
+    @staticmethod
+    def _loads(body: str) -> Dict[str, Any]:
+        data: Dict[str, Any] = {}
         if isinstance(body, str):
-            self._data = json.loads(body)
+            data = json.loads(body)
+        return data
 
-    def get(self, key):
-        return self._data.get(key)
+    def get(self, key: str) -> Optional[str]:
+        return self.data.get(key)
 
 
 class Get:
-    def __init__(self, params):
-        self._data = None
-        self._setup(params)
+    def __init__(self, params: Dict[str, Any]) -> None:
+        self.data = params
 
-    def _setup(self, params):
-        self._data = params
-
-    def get(self, key):
-        return self._data.get(key)
+    def get(self, key: str) -> Optional[str]:
+        return self.data.get(key)
 
 
 class Request:
     def __init__(self, event, context):
         self.lambda_context = context
+        self._raw_event = event
         self._cleaned_event = {}
         self._parse_event(event)
 
         self.GET = Get(event.get('queryStringParameters', {}))
-        self.POST = Post(event.get('body'))
+        self.POST = Post(event.get('body', {}))
+        self.HEADERS = Header(event.get('headers', {}))
+
+    @property
+    def method(self) -> str:
+        return self._cleaned_event.get('http_method')
 
     @staticmethod
-    @lru_cache(maxsize=100)
-    def _fixup_keys(key):
+    @lru_cache(maxsize=10000)
+    def _fixup_keys(key: str) -> str:
         """
         Turns camel-case into snake-case
         For example: queryStringParameters -> query_string_parameters
@@ -75,5 +88,5 @@ class Request:
     def __str__(self):
         return f'Request: {self._cleaned_event}'
 
-    def __getattr__(self, item):
+    def __getattr__(self, item: str) -> Any:
         return self._cleaned_event[item]

@@ -1,4 +1,4 @@
-from deez import Request
+from deez.request import Request
 from deez.exceptions import ResourceError
 
 
@@ -15,8 +15,8 @@ class Resource:
         except TypeError as e:
             raise ResourceError(f'{self.get_class_name()}.{e.args[0]}')
 
-    def get_class_name(self):
+    def get_class_name(self) -> str:
         return self.__class__.__name__
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.get_class_name()
