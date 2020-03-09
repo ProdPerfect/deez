@@ -1,8 +1,10 @@
 import re
 from functools import lru_cache
+from typing import Union
 
 from deez.exceptions import BadRequest, DuplicateRouteError, NoResponseError, NotFound, PermissionDenied, UnAuthorized
 from deez.request import Request
+from deez.urls import Path
 
 
 class Router:
@@ -101,10 +103,17 @@ class Router:
         if path in self._routes:
             raise DuplicateRouteError(f"\"{path}\" already defined")
 
-    def register(self, path, resource):
-        self._validate_path(path)
-        self._routes[path] = resource
-        self._route_patterns.append(re.compile(path))
+    def register(self, path: Union[str, Path], resource=None):
+        url_path = path
+        url_resource = resource
+
+        if isinstance(path, Path):
+            url_path = path.regex
+            url_resource = path.resource
+
+        self._validate_path(url_path)
+        self._routes[url_path] = url_resource
+        self._route_patterns.append(re.compile(url_path))
 
     def route(self, event, context):
         try:

@@ -8,6 +8,7 @@ from deez.exceptions import NotFound, ResourceError
 from deez.resource import Resource
 from deez.response import JsonResponse, NoContentResponse
 from deez.router import Router
+from deez.urls import path_resolver
 from tests.mock_event import event
 
 
@@ -55,6 +56,37 @@ class RouterTestCase(unittest.TestCase):
         router = Router(app)
         router.register(r'^/hello/world$', HelloWorldResource)
         response, status_code, _, _ = router.execute(event, {})
+        self.assertEqual(json.dumps({'message': 'hello world'}), response)
+        self.assertEqual(status_code, 200)
+
+    def test_can_route_correctly_with_str_path_resolver(self, *args, **kwargs):
+        app = Deez()
+        app.settings._reload()
+        router = Router(app)
+        router.register(path_resolver('/hello/<str:world>', HelloWorldResource))
+        response, status_code, _, _ = router.execute(event, {})
+        self.assertEqual(json.dumps({'message': 'hello world'}), response)
+        self.assertEqual(status_code, 200)
+
+    def test_can_route_correctly_with_int_path_resolver(self, *args, **kwargs):
+        _event = copy.deepcopy(event)
+        _event['path'] = '/hello/1'
+        app = Deez()
+        app.settings._reload()
+        router = Router(app)
+        router.register(path_resolver('/hello/<int:world>', HelloWorldResource))
+        response, status_code, _, _ = router.execute(_event, {})
+        self.assertEqual(json.dumps({'message': 'hello world'}), response)
+        self.assertEqual(status_code, 200)
+
+    def test_can_route_correctly_with_uuid_path_resolver(self, *args, **kwargs):
+        _event = copy.deepcopy(event)
+        _event['path'] = '/hello/b4464968-98a3-4019-b198-83155241a8a6'
+        app = Deez()
+        app.settings._reload()
+        router = Router(app)
+        router.register(path_resolver('/hello/<uuid:world>', HelloWorldResource))
+        response, status_code, _, _ = router.execute(_event, {})
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
 

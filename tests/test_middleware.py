@@ -6,6 +6,7 @@ from deez.deez import Deez
 from deez.resource import Resource
 from deez.response import JsonResponse
 from deez.router import Router
+from deez.urls import path_resolver
 from tests.mock_event import event
 
 
@@ -21,7 +22,7 @@ class MiddlewareTestCase(unittest.TestCase):
         with mock.patch('tests.settings.MIDDLEWARE', ['tests.middleware.TestMiddleware']):
             app = Deez()
             router = Router(app)
-            router.register(r'^/hello/world$', HelloWorldResource)
+            router.register(path_resolver('/hello/world', HelloWorldResource))
             response = router.route(event, {})
             self.assertEqual(
                 response,
