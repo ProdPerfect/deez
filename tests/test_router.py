@@ -68,13 +68,30 @@ class RouterTestCase(unittest.TestCase):
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
 
+        _event = copy.deepcopy(event)
+        _event['path'] = '/hello/my-world'
+        response, status_code, _, _ = router.execute(_event, {})
+        self.assertEqual(json.dumps({'message': 'hello world'}), response)
+        self.assertEqual(status_code, 200)
+
     def test_can_route_correctly_with_int_path_resolver(self, *args, **kwargs):
         _event = copy.deepcopy(event)
-        _event['path'] = '/hello/1'
+        _event['path'] = '/hello/1/'
         app = Deez()
         app.settings._reload()
         router = Router(app)
-        router.register(path_resolver('/hello/<int:world>', HelloWorldResource))
+        router.register(path_resolver('/hello/<int:world>/', HelloWorldResource))
+        response, status_code, _, _ = router.execute(_event, {})
+        self.assertEqual(json.dumps({'message': 'hello world'}), response)
+        self.assertEqual(status_code, 200)
+
+    def test_can_route_correctly_with_number_path_resolver(self, *args, **kwargs):
+        _event = copy.deepcopy(event)
+        _event['path'] = '/hello/10.00/stacks'
+        app = Deez()
+        app.settings._reload()
+        router = Router(app)
+        router.register(path_resolver('/hello/<number:world>/stacks', HelloWorldResource))
         response, status_code, _, _ = router.execute(_event, {})
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)

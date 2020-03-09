@@ -11,8 +11,9 @@ PATTERN_DETECTOR = re.compile(r"(<.*?>)", re.IGNORECASE)
 
 _alias_to_regex = {
     'int': r'\d+',
-    'str': r'\w+',
+    'str': r'[a-zA-Z0-9-_]+',
     'uuid': UUID4_PATTERN,
+    'number': r'\d*[.,]?\d+',
 }
 
 
