@@ -106,10 +106,11 @@ class Router:
     def register(self, path: Union[str, Path], resource=None):
         url_path = path
         url_resource = resource
-
         if isinstance(path, Path):
             url_path = path.regex
             url_resource = path.resource
+        else:
+            assert resource is not None
 
         self._validate_path(url_path)
         self._routes[url_path] = url_resource
