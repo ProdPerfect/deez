@@ -1,6 +1,5 @@
 import importlib
 import os
-from typing import Iterable
 
 from deez.conf import default_settings
 from deez.functional import SimpleLazyObject

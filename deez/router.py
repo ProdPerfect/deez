@@ -1,13 +1,19 @@
 import re
 from functools import lru_cache
-from typing import Union
+from typing import Any, Union, Type, Dict
 
 from deez.exceptions import BadRequest, DuplicateRouteError, NoResponseError, NotFound, PermissionDenied, UnAuthorized
 from deez.request import Request
 from deez.urls import Path
+from deez.resource import Resource
 
 
 class Router:
+    """
+    The router is responsible for calling the appropriate resource classes
+    and executing middleware -- it's the core of Deez.
+    """
+
     def __init__(self, app):
         self._app = app
         self._routes = {}
@@ -15,7 +21,7 @@ class Router:
         self._route_patterns = []
 
     @lru_cache(maxsize=1000)
-    def _get_re_match(self, path, method):
+    def _get_re_match(self, path: str, method: str):
         matched_patterns = [
             pattern.search(path)
             for _, pattern in enumerate(self._route_patterns)
@@ -44,7 +50,6 @@ class Router:
 
             for _, best in enumerate(best_match):
                 re_pattern = best.re.pattern
-                # TODO: Fix this later
                 exact_pattern = self._routes.get(re_pattern)
                 if exact_pattern:
                     best_pattern = best
@@ -55,10 +60,15 @@ class Router:
                     best_pattern = best
                     best_group_count = groups_len
             return best_pattern
-        else:
-            return matched_patterns[0]
 
-    def execute(self, event=None, context=None):
+        return matched_patterns[0]
+
+    def execute(self, event: Dict[str, Any] = None, context: Dict[str, Any] = None):
+        """
+        This is where the resource calling and middleware execution _really_ happens.
+        Probably deserves a much longer comment, but I feel like for now it's pretty
+        self explanatory.
+        """
         request = Request(event, context=context)
         path = request.path
         method = request.http_method.lower()
@@ -70,11 +80,11 @@ class Router:
         resource_class = self._routes[re_match.re.pattern]()
 
         # middleware that needs to run before calling the resource
-        middleware = self._app.middleware
+        middleware_forward = self._app.middleware
         middleware_reversed = self._app.middleware_reversed
 
-        for _, m in enumerate(middleware):
-            _request = m(resource=resource_class).before_request(request=request)
+        for _, middleware in enumerate(middleware_forward):
+            _request = middleware(resource=resource_class).before_request(request=request)
             if _request:
                 request = _request
 
@@ -84,8 +94,8 @@ class Router:
             raise NoResponseError(f'{resource_class.get_class_name()} did not return a response')
 
         # middleware that needs to run before response
-        for _, m in enumerate(middleware_reversed):
-            _response = m(resource=resource_class).before_response(response=response)
+        for _, middleware in enumerate(middleware_reversed):
+            _response = middleware(resource=resource_class).before_response(response=response)
             if _response:
                 response = _response
 
@@ -104,8 +114,12 @@ class Router:
             raise DuplicateRouteError(f"\"{path}\" already defined")
 
     def register(self, path: Union[str, Path], resource=None):
-        url_path = path
-        url_resource = resource
+        """
+        Add a path to its internal registry with some validation
+        to prevent duplicate routes from being registered.
+        """
+        url_path: Union[str, Path] = path
+        url_resource: Type[Resource] = resource
         if isinstance(path, Path):
             url_path = path.regex
             url_resource = path.resource
@@ -114,23 +128,27 @@ class Router:
 
         self._validate_path(url_path)
         self._routes[url_path] = url_resource
-        self._route_patterns.append(re.compile(url_path))
+        self._route_patterns.append(re.compile(str(url_path)))
 
     def route(self, event, context):
+        """
+        Handles Deez exceptions thrown in middleware and resources
+        and maps them to valid responses and status codes.
+        """
         try:
             response, status_code, headers, content_type = self.execute(event=event, context=context)
             return self._make_response(status_code, response,
                                        content_type=content_type, extra_headers=headers)
-        except BadRequest as e:
-            return self._make_response(400, data=e.args[0])
-        except UnAuthorized as e:
-            return self._make_response(401, data=e.args[0])
-        except PermissionDenied as e:
-            return self._make_response(403, data=e.args[0])
-        except NotFound as e:
-            return self._make_response(404, data=e.args[0])
+        except BadRequest as exc:
+            return self._make_response(400, data=exc.args[0])
+        except UnAuthorized as exc:
+            return self._make_response(401, data=exc.args[0])
+        except PermissionDenied as exc:
+            return self._make_response(403, data=exc.args[0])
+        except NotFound as exc:
+            return self._make_response(404, data=exc.args[0])
 
-    def _make_response(self, status_code, data, content_type='application/json', extra_headers=None):
+    def _make_response(self, status_code: int, data, content_type: str = 'application/json', extra_headers=None):
         default_headers = {
             'Access-Control-Allow-Origin': '*',
             'X-Content-Type-Options': 'nosniff'

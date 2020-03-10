@@ -1,4 +1,4 @@
-from typing import Iterable, List, Union
+from typing import Iterable, List, Union, Type
 
 from deez.conf import settings
 from deez.middleware import Middleware
@@ -11,7 +11,7 @@ class Deez:
     def __init__(self) -> None:
         self.router: Router
         self.settings = settings
-        self.middleware: List[Middleware] = []
+        self.middleware: List[Type[Middleware]] = []
         self.middleware_reversed: Iterable[Middleware] = []
 
         self._setup()
