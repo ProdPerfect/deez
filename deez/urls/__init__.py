@@ -10,3 +10,6 @@ class Path:
 def path_resolver(url: str, resource) -> Path:
     regex = pattern_replacer(url)
     return Path(regex, resource)
+
+
+__all__ = ['Path', 'path_resolver']
