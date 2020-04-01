@@ -36,13 +36,13 @@ class RouterTestCase(unittest.TestCase):
         router = Router(app)
         router.register(path_resolver('/hello/<str:customer_name>', GetByNameResource))
         response, status_code, _, _ = router.execute(event, {})
-        self.assertEqual(json.dumps({'message': 'ok'}), response)
+        self.assertEqual(json.dumps({'message': 'ok', 'customer_name': 'world'}), response)
         self.assertEqual(status_code, 200)
 
         _event = copy.deepcopy(event)
         _event['path'] = '/hello/my-world'
         response, status_code, _, _ = router.execute(_event, {})
-        self.assertEqual(json.dumps({'message': 'ok'}), response)
+        self.assertEqual(json.dumps({'message': 'ok', 'customer_name': 'my-world'}), response)
         self.assertEqual(status_code, 200)
 
     def test_can_route_correctly_with_int_path_resolver(self, *args, **kwargs):

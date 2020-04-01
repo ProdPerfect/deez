@@ -28,7 +28,7 @@ class HelloWorldResource4(HelloWorldResource):
 
 class GetByNameResource(Resource):
     def get(self, request, customer_name):
-        return JsonResponse(data={'message': 'ok'}, headers={'X-Lemi-Gang': 'Yeet'})
+        return JsonResponse(data={'message': 'ok', 'customer_name': customer_name}, headers={'X-Lemi-Gang': 'Yeet'})
 
 
 class NotContentResource(HelloWorldResource):

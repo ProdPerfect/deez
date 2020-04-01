@@ -37,7 +37,7 @@ def pattern_replacer(string: str) -> str:
         if ':' not in pattern:
             continue
         alias, name = re.sub(r"[^a-z_:]", '', pattern).split(':', maxsplit=1)
-        named_pattern = '(?P<%s>)%s' % (name, _ALIAS_TO_REGEX[alias])
+        named_pattern = '(?P<%s>%s)' % (name, _ALIAS_TO_REGEX[alias])
         original_url = original_url.replace(pattern, named_pattern)
 
     cleaned_url = r'^/%s$' % original_url
