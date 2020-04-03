@@ -47,7 +47,7 @@ class Get:
         self.data = params
 
     def get(self, key: str) -> Optional[str]:
-        return self.data.get(key)
+        return self.data.get(key) if self.data else None
 
 
 class Request:
