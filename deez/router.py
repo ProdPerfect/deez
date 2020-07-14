@@ -1,11 +1,11 @@
 import re
 from functools import lru_cache
-from typing import Any, Union, Type, Dict
+from typing import Any, Dict, Type, Union
 
 from deez.exceptions import BadRequest, DuplicateRouteError, NoResponseError, NotFound, PermissionDenied, UnAuthorized
 from deez.request import Request
-from deez.urls import Path
 from deez.resource import Resource
+from deez.urls import Path
 
 
 class Router:
@@ -85,8 +85,9 @@ class Router:
 
         for _, middleware in enumerate(middleware_forward):
             _request = middleware(resource=resource_class).before_request(request=request)
-            if _request:
-                request = _request
+            if not _request:
+                raise RuntimeError(f"{middleware.__name__}.before_request did not return request object")
+            request = _request
 
         kwargs = re_match.groupdict()
         response = resource_class.dispatch(method=method, request=request, **kwargs)
@@ -96,8 +97,9 @@ class Router:
         # middleware that needs to run before response
         for _, middleware in enumerate(middleware_reversed):
             _response = middleware(resource=resource_class).before_response(response=response)
-            if _response:
-                response = _response
+            if not _response:
+                raise RuntimeError(f"{middleware.__name__}.before_response did not return response object")
+            response = _response
 
         headers = response.headers
         status_code = 200
