@@ -1,10 +1,11 @@
 import re
 from functools import lru_cache
-from typing import Any, Dict, Type, Union
+from typing import Any, Dict, Optional, Tuple, Type, Union
 
 from deez.exceptions import BadRequest, DuplicateRouteError, NoResponseError, NotFound, PermissionDenied, UnAuthorized
 from deez.request import Request
 from deez.resource import Resource
+from deez.response import Response
 from deez.urls import Path
 
 
@@ -63,7 +64,8 @@ class Router:
 
         return matched_patterns[0]
 
-    def execute(self, event: Dict[str, Any] = None, context: Dict[str, Any] = None):
+    def execute(self, event: Dict[str, Any] = None,
+                context: Dict[str, Any] = None) -> Tuple[Optional[str], int, Dict[str, Any], str]:
         """
         This is where the resource calling and middleware execution _really_ happens.
         Probably deserves a much longer comment, but I feel like for now it's pretty
@@ -90,7 +92,7 @@ class Router:
             request = _request
 
         kwargs = re_match.groupdict()
-        response = resource_class.dispatch(method=method, request=request, **kwargs)
+        response: Response = resource_class.dispatch(method=method, request=request, **kwargs)
         if not response:
             raise NoResponseError(f'{resource_class.get_class_name()} did not return a response')
 
@@ -101,15 +103,12 @@ class Router:
                 raise RuntimeError(f"{middleware.__name__}.before_response did not return response object")
             response = _response
 
-        headers = response.headers
-        status_code = 200
-        content_type = response.content_type
-        if hasattr(response, 'status_code'):
-            status_code = response.status_code
-
-        if hasattr(response, 'render'):
-            return response.render(), status_code, headers, content_type
-        return response, status_code, headers, content_type
+        return (
+            response.render(),
+            response.status_code,
+            response.headers,
+            response.content_type,
+        )
 
     def _validate_path(self, path):
         if path in self._routes:
