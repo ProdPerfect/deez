@@ -3,6 +3,7 @@ from functools import lru_cache
 from typing import Any, Dict, Optional, Tuple, Type, Union
 
 from deez.exceptions import BadRequest, DuplicateRouteError, NoResponseError, NotFound, PermissionDenied, UnAuthorized
+from deez.logger import get_logger
 from deez.request import Request
 from deez.resource import Resource
 from deez.response import Response
@@ -20,18 +21,22 @@ class Router:
         self._routes = {}
         self._route_names = {}
         self._route_patterns = []
+        self._logger = get_logger()
 
     @lru_cache(maxsize=1000)
     def _get_re_match(self, path: str, method: str):
+        self._logger.debug("finding URL pattern match for path: '%s'", path)
         matched_patterns = [
             pattern.search(path)
             for _, pattern in enumerate(self._route_patterns)
         ]
 
         if not matched_patterns:
+            self._logger.debug("no matching URL patterns found for path: '%s'", path)
             return None
 
         if len(matched_patterns) > 1:
+            self._logger.debug("at least one matching URL pattern found for path: '%s'", path)
             best_match = [
                 match for _, match in enumerate(matched_patterns)
                 if match and hasattr(self._routes[match.re.pattern], method)
@@ -60,6 +65,9 @@ class Router:
                 if groups_len > best_group_count:
                     best_pattern = best
                     best_group_count = groups_len
+
+            self._logger.debug("URL pattern '%s' was best match for path: '%s'",
+                               best_pattern.re.pattern, path)
             return best_pattern
 
         return matched_patterns[0]
@@ -126,6 +134,8 @@ class Router:
             url_resource = path.resource
         else:
             assert resource is not None
+
+        self._logger.debug("registering URL pattern '%s'", url_path)
 
         self._validate_path(url_path)
         self._routes[url_path] = url_resource

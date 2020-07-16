@@ -1,4 +1,4 @@
-from typing import Iterable, List, Union, Type
+from typing import Iterable, List, Type, Union
 
 from deez.conf import settings
 from deez.middleware import Middleware
