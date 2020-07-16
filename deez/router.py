@@ -1,6 +1,6 @@
 import re
 from functools import lru_cache
-from typing import Any, Dict, Tuple, Type, Union
+from typing import Any, Dict, Optional, Tuple, Type, Union
 
 from deez.exceptions import BadRequest, DuplicateRouteError, NoResponseError, NotFound, PermissionDenied, UnAuthorized
 from deez.request import Request
@@ -65,7 +65,7 @@ class Router:
         return matched_patterns[0]
 
     def execute(self, event: Dict[str, Any] = None,
-                context: Dict[str, Any] = None) -> Tuple[str, int, Dict[str, Any], str]:
+                context: Dict[str, Any] = None) -> Tuple[Optional[str], int, Dict[str, Any], str]:
         """
         This is where the resource calling and middleware execution _really_ happens.
         Probably deserves a much longer comment, but I feel like for now it's pretty
