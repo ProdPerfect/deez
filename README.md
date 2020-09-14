@@ -1,10 +1,22 @@
 # Deez (Under Development)
-A little library I building to simplify building small web services (mostly APIs) on top of AWS Lambda.
+A little library to simplify building small APIs on top of AWS Lambda + API Gateway.
 
 > ##### DOCUMENTATION TBD
 
 ### Installation
 `pip install deez`
+
+
+### Creating a resource
+Your resource must implement an HTTP verb (get, post, put, etc.,)
+
+```python
+from deez.resource import Resource
+
+class MyResource(Resource):
+    def get(self, request, *args, **kwargs):
+        pass
+```
 
 ### Example of how to use
 Note: The Deez router uses regex for path matching.

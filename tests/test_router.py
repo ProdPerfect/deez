@@ -6,10 +6,11 @@ import unittest
 from deez.deez import Deez
 from deez.exceptions import NotFound, ResourceError
 from deez.router import Router
-from deez.urls import path_resolver
+from deez.urls import path
 from tests.mock_event import event
-from tests.mock_resources import HelloWorldResource, HelloWorldResource2, HelloWorldResource4, \
-    MethodNotImplementedResource, NotContentResource, HelloWorldResource3, GetByNameResource
+from tests.mock_resources import (
+    GetByNameResource, HelloWorldResource, HelloWorldResource2, HelloWorldResource3,
+    HelloWorldResource4, MethodNotImplementedResource, NotContentResource, RedirectResource)
 
 
 class RouterTestCase(unittest.TestCase):
@@ -30,11 +31,11 @@ class RouterTestCase(unittest.TestCase):
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
 
-    def test_can_route_correctly_with_str_path_resolver(self, *args, **kwargs):
+    def test_can_route_correctly_with_str_path(self, *args, **kwargs):
         app = Deez()
         app.settings._reload()
         router = Router(app)
-        router.register(path_resolver('/hello/<str:customer_name>', GetByNameResource))
+        router.register(path('/hello/<str:customer_name>', GetByNameResource))
         response, status_code, _, _ = router.execute(event, {})
         self.assertEqual(json.dumps({'message': 'ok', 'customer_name': 'world'}), response)
         self.assertEqual(status_code, 200)
@@ -45,35 +46,46 @@ class RouterTestCase(unittest.TestCase):
         self.assertEqual(json.dumps({'message': 'ok', 'customer_name': 'my-world'}), response)
         self.assertEqual(status_code, 200)
 
-    def test_can_route_correctly_with_int_path_resolver(self, *args, **kwargs):
+    def test_can_route_correctly_with_int_path(self, *args, **kwargs):
         _event = copy.deepcopy(event)
         _event['path'] = '/hello/1/'
         app = Deez()
         app.settings._reload()
         router = Router(app)
-        router.register(path_resolver('/hello/<int:world>/', HelloWorldResource))
+        router.register(path('/hello/<int:world>/', HelloWorldResource))
         response, status_code, _, _ = router.execute(_event, {})
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
 
-    def test_can_route_correctly_with_number_path_resolver(self, *args, **kwargs):
+    def test_can_route_correctly_with_number_path(self, *args, **kwargs):
         _event = copy.deepcopy(event)
         _event['path'] = '/hello/10.00/stacks'
         app = Deez()
         app.settings._reload()
         router = Router(app)
-        router.register(path_resolver('/hello/<number:world>/stacks', HelloWorldResource))
+        router.register(path('/hello/<number:world>/stacks', HelloWorldResource))
         response, status_code, _, _ = router.execute(_event, {})
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
 
-    def test_can_route_correctly_with_uuid_path_resolver(self, *args, **kwargs):
+    def test_can_route_correctly_with_uuid_path(self, *args, **kwargs):
         _event = copy.deepcopy(event)
         _event['path'] = '/hello/b4464968-98a3-4019-b198-83155241a8a6'
         app = Deez()
         app.settings._reload()
         router = Router(app)
-        router.register(path_resolver('/hello/<uuid:world>', HelloWorldResource))
+        router.register(path('/hello/<uuid:world>', HelloWorldResource))
+        response, status_code, _, _ = router.execute(_event, {})
+        self.assertEqual(json.dumps({'message': 'hello world'}), response)
+        self.assertEqual(status_code, 200)
+
+    def test_can_route_correctly_with_slug_path(self, *args, **kwargs):
+        _event = copy.deepcopy(event)
+        _event['path'] = '/hello/hello-world-hello'
+        app = Deez()
+        app.settings._reload()
+        router = Router(app)
+        router.register(path('/hello/<slug:world>', HelloWorldResource))
         response, status_code, _, _ = router.execute(_event, {})
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
@@ -126,6 +138,24 @@ class RouterTestCase(unittest.TestCase):
         with self.assertRaises(NotFound) as e:
             self.router.execute(event, {})
         self.assertEqual("GET '/hello/world' not found!", e.exception.args[0])
+
+    def test_redirect_response(self):
+        _event = copy.deepcopy(event)
+        _event['path'] = '/hello/world/redirect'
+
+        self.router.register(path('hello/world/redirect', RedirectResource))
+        response = self.router.route(_event, {})
+
+        self.assertEqual({
+            'isBase64Encoded': False,
+            'statusCode': 302,
+            'body': None,
+            'headers': {
+                'Location': '/redirect',
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'X-Content-Type-Options': 'nosniff'
+            }}, response)
 
     def test_raises_404_response(self):
         self.router.register(r'^/hello/world/fail$', HelloWorldResource)
