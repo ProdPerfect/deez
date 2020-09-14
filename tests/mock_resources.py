@@ -1,5 +1,5 @@
 from deez.resource import Resource
-from deez.response import JsonResponse, NoContentResponse
+from deez.response import HttpRedirectResponse, JsonResponse, NoContentResponse
 
 
 class MethodNotImplementedResource(Resource):
@@ -34,3 +34,8 @@ class GetByNameResource(Resource):
 class NotContentResource(HelloWorldResource):
     def get(self, request, *args, **kwargs):
         return NoContentResponse()
+
+
+class RedirectResource(Resource):
+    def get(self, request, *args, **kwargs):
+        return HttpRedirectResponse('/redirect')

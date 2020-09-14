@@ -13,6 +13,14 @@ class ParseTestCase(unittest.TestCase):
         url = pattern_replacer("users/<str:name>/")
         self.assertEqual(r"^/users/(?P<name>[a-zA-Z0-9-_]+)/$", url)
 
+    def test_pattern_replacer_slug(self):
+        url = pattern_replacer("users/<slug:username>/")
+        self.assertEqual(r"^/users/(?P<username>[-\w]+)/$", url)
+
+    def test_pattern_replacer_number(self):
+        url = pattern_replacer("users/<number:id>/")
+        self.assertEqual(r"^/users/(?P<id>\d*[.,]?\d+)/$", url)
+
     def test_pattern_replacer_uuid(self):
         url = pattern_replacer("users/<uuid:name>/")
         self.assertEqual(
