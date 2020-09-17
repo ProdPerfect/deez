@@ -8,17 +8,20 @@ with open("README.md", "r") as fh:
 
 setup(name='deez',
       version=__version__,
-      description='A little library I building to simplify building small web services (mostly APIs) on top of AWS Lambda.',
+      description='A little library to simplify building small APIs on top of API Gateway and Lambda.',
       long_description=long_description,
       long_description_content_type='text/markdown',
       author=__author__,
       author_email=__email__,
       packages=find_packages(exclude=["tests"]),
-      url='https://github.com/rhymiz/deez',
+      url='https://github.com/prodperfect/deez',
       include_package_data=True,
       zip_safe=False,
       license='MIT',
       python_requires='>=3.6',
+      install_requires=[
+          'deez-stubs>=0.0.1',
+      ],
       classifiers=[
           "Programming Language :: Python :: 3",
           "Programming Language :: Python :: 3.6",

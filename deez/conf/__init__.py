@@ -6,7 +6,10 @@ from deez.functional import SimpleLazyObject
 
 
 def load_settings_module():
-    settings_module = os.environ['PROJECT_SETTINGS_MODULE']
+    settings_module = os.getenv('PROJECT_SETTINGS_MODULE')
+    assert settings_module is not None, "You must set PROJECT_SETTINGS_MODULE " \
+                                        "as an environment variable with a path to " \
+                                        "you settings module."
     setting = importlib.import_module(settings_module)
     return setting
 
