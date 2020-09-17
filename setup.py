@@ -16,12 +16,12 @@ setup(name='deez',
       packages=find_packages(exclude=["tests"]),
       url='https://github.com/prodperfect/deez',
       include_package_data=True,
-      zip_safe=False,
+      package_data={
+          '': ['*.pyi'],
+      },
+      zip_safe=True,
       license='MIT',
       python_requires='>=3.6',
-      install_requires=[
-          'deez-stubs>=0.0.1',
-      ],
       classifiers=[
           "Programming Language :: Python :: 3",
           "Programming Language :: Python :: 3.6",
