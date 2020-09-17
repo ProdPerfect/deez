@@ -159,7 +159,7 @@ class Router:
         except NotFound as exc:
             return self._make_response(404, data=exc.args[0])
 
-    def _make_response(self, status_code: int, data, content_type: str = 'application/json', extra_headers=None):
+    def _make_response(self, status_code, data, content_type='application/json', extra_headers=None):
         default_headers = {
             'Access-Control-Allow-Origin': '*',
             'X-Content-Type-Options': 'nosniff'

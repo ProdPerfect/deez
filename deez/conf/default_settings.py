@@ -1,4 +1,4 @@
 from typing import List
 
-DEBUG = False
+DEBUG: bool = True
 MIDDLEWARE: List[str] = []

@@ -7,7 +7,7 @@ class MethodNotImplementedResource(Resource):
 
 
 class HelloWorldResource(Resource):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
         return JsonResponse(data={'message': 'hello world'})
 
 
@@ -17,25 +17,25 @@ class HelloWorldResource2(Resource):
 
 
 class HelloWorldResource3(HelloWorldResource):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
         return JsonResponse(data={'message': 'hello world 3'})
 
 
 class HelloWorldResource4(HelloWorldResource):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
         return JsonResponse(data={'message': 'hello world 3'}, headers={'X-Lemi-Gang': 'Yeet'})
 
 
 class GetByNameResource(Resource):
-    def get(self, request, customer_name):
+    def get(self, request, customer_name=None, **kwargs):
         return JsonResponse(data={'message': 'ok', 'customer_name': customer_name}, headers={'X-Lemi-Gang': 'Yeet'})
 
 
 class NotContentResource(HelloWorldResource):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
         return NoContentResponse()
 
 
 class RedirectResource(Resource):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
         return HttpRedirectResponse('/redirect')
