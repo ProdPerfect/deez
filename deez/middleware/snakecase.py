@@ -6,7 +6,6 @@ from deez.middleware.base import Middleware
 
 
 # https://stackoverflow.com/a/29916095
-# TODO: Think of a better way to do this, it's kind of slow.
 def _camel_case_split(identifier: str) -> List[str]:
     matches = settings.CAMELCASE_REGEX.finditer(identifier)
     split_string = []
