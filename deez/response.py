@@ -4,12 +4,13 @@ from typing import Any, Dict, Optional
 
 
 class Response:
-
     def __init__(self, data: Any = None, status_code: int = 200,
                  headers: Dict[str, Any] = None,
                  content_type: str = None):
         self.data = data
-        self.headers = headers
+        self.headers = {}
+        if headers:
+            self.headers = headers
         self.status_code = status_code
         self.content_type = content_type
 

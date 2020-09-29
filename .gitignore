@@ -198,3 +198,4 @@ fabric.properties
 
 .vscode/**/*
 .DS_Store
+main.py

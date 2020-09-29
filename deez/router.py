@@ -81,7 +81,7 @@ class Router:
         """
         request = Request(event, context=context)
         path = request.path
-        method = request.http_method.lower()
+        method = request.method.lower()
 
         re_match = self._get_re_match(path=path, method=method)
         if not re_match:
