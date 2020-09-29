@@ -2,7 +2,6 @@ import importlib
 import os
 
 from deez.conf import default_settings
-from deez.functional import SimpleLazyObject
 
 
 def load_settings_module():
@@ -20,7 +19,8 @@ class Setting:
 
     def _setup(self):
         for setting in dir(default_settings):
-            setattr(self, setting, getattr(default_settings, setting))
+            if setting.isupper():
+                setattr(self, setting, getattr(default_settings, setting))
 
         imp = load_settings_module()
         for setting in dir(imp):
@@ -40,4 +40,4 @@ class Setting:
         self._setup()
 
 
-settings = SimpleLazyObject(lambda: Setting())
+settings = Setting()

@@ -1,4 +1,2 @@
-from typing import List
-
-DEBUG = False
-MIDDLEWARE: List[str] = []
+DEBUG: bool = True
+MIDDLEWARE = ['deez.middleware.snakecase.SnakeCaseMiddleware']
