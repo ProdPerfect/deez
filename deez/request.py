@@ -30,7 +30,7 @@ class Post:
             except JSONDecodeError:
                 pass
 
-    def get(self, key: str) -> Optional[str]:
+    def get(self, key: str) -> Optional[Any]:
         return self.data.get(key)
 
 
@@ -38,7 +38,7 @@ class Get:
     def __init__(self, params: Dict[str, Any]) -> None:
         self.data = params
 
-    def get(self, key: str) -> Optional[str]:
+    def get(self, key: str) -> Optional[Any]:
         return self.data.get(key) if self.data else None
 
 
