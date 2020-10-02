@@ -1,4 +1,4 @@
-# Deez (Under Development)
+# Deez
 A little library to simplify building small APIs on top of AWS Lambda + API Gateway.
 
 > ##### DOCUMENTATION TBD
