@@ -1,3 +1,4 @@
+import json
 import re
 from functools import lru_cache
 from typing import Any, Dict, Optional, Tuple, Type, Union
@@ -151,13 +152,13 @@ class Router:
             return self._make_response(status_code, response,
                                        content_type=content_type, extra_headers=headers)
         except BadRequest as exc:
-            return self._make_response(400, data=exc.args[0])
+            return self._make_response(400, data=json.dumps({'message': exc.args[0]}))
         except UnAuthorized as exc:
-            return self._make_response(401, data=exc.args[0])
+            return self._make_response(401, data=json.dumps({'message': exc.args[0]}))
         except PermissionDenied as exc:
-            return self._make_response(403, data=exc.args[0])
+            return self._make_response(403, data=json.dumps({'message': exc.args[0]}))
         except NotFound as exc:
-            return self._make_response(404, data=exc.args[0])
+            return self._make_response(404, data=json.dumps({'message': exc.args[0]}))
 
     def _make_response(self, status_code, data, content_type='application/json', extra_headers=None):
         default_headers = {
