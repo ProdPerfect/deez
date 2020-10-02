@@ -163,7 +163,7 @@ class RouterTestCase(unittest.TestCase):
         self.assertEqual({
             'isBase64Encoded': False,
             'statusCode': 404,
-            'body': "GET '/hello/world' not found!",
+            'body': '{"message": "GET \'/hello/world\' not found!"}',
             'headers': {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
