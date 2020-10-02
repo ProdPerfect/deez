@@ -18,7 +18,3 @@ rope = "*"
 autopep8 = "*"
 
 [packages]
-deez-stubs = "*"
-
-[requires]
-python_version = "3"
