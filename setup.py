@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# type: ignore
 from setuptools import find_packages, setup
 
 from deez.__version__ import __author__, __email__, __version__

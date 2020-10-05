@@ -7,5 +7,3 @@ class Middleware:
 
     def before_response(self, response):
         return response
-
-
