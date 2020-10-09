@@ -7,7 +7,6 @@ from deez.exceptions import BadRequest, DuplicateRouteError, NoResponseError, No
 from deez.logger import get_logger
 from deez.request import Request
 from deez.resource import Resource
-from deez.response import Response
 from deez.urls import Path
 
 
@@ -20,7 +19,6 @@ class Router:
     def __init__(self, app):
         self._app = app
         self._routes = {}
-        self._route_names = {}
         self._route_patterns = []
         self._logger = get_logger()
 
@@ -36,8 +34,9 @@ class Router:
             self._logger.debug("no matching URL patterns found for path: '%s'", path)
             return None
 
-        if len(matched_patterns) > 1:
-            self._logger.debug("at least one matching URL pattern found for path: '%s'", path)
+        matched_patterns_length = len(matched_patterns)
+        if matched_patterns_length > 1:
+            self._logger.debug("%s matching URL pattern found for path: '%s'", matched_patterns_length, path)
             best_match = [
                 match for _, match in enumerate(matched_patterns)
                 if match and hasattr(self._routes[match.re.pattern], method)
@@ -67,8 +66,10 @@ class Router:
                     best_pattern = best
                     best_group_count = groups_len
 
-            self._logger.debug("URL pattern '%s' was best match for path: '%s'",
-                               best_pattern.re.pattern, path)
+            self._logger.debug(
+                "URL pattern '%s' was best match for path: '%s'",
+                best_pattern.re.pattern, path,
+            )
             return best_pattern
 
         return matched_patterns[0]
@@ -80,7 +81,7 @@ class Router:
         Probably deserves a much longer comment, but I feel like for now it's pretty
         self explanatory.
         """
-        request = Request(event, context=context)
+        request = Request(event=event, context=context)
         path = request.path
         method = request.method.lower()
 
@@ -88,7 +89,8 @@ class Router:
         if not re_match:
             raise NotFound(f'{method.upper()} \'{path}\' not found!')
 
-        resource_class = self._routes[re_match.re.pattern]()
+        resource_class = self._routes[re_match.re.pattern]
+        resource_instance = resource_class()
 
         # middleware that needs to run before calling the resource
         middleware_forward = self._app.middleware
@@ -101,15 +103,16 @@ class Router:
             request = _request
 
         kwargs = re_match.groupdict()
-        response: Response = resource_class.dispatch(method=method, request=request, **kwargs)
+        response = resource_instance.dispatch(method=method, request=request, **kwargs)
         if not response:
-            raise NoResponseError(f'{resource_class.get_class_name()} did not return a response')
+            raise NoResponseError(f'{resource_instance.get_class_name()} did not return a response')
 
         # middleware that needs to run before response
         for _, middleware in enumerate(middleware_reversed):
             _response = middleware(resource=resource_class).before_response(response=response)
             if not _response:
-                raise RuntimeError(f"{middleware.__name__}.before_response did not return response object")
+                raise RuntimeError(
+                    f"{middleware.__name__}.before_response did not return response object")
             response = _response
 
         return (
@@ -139,9 +142,10 @@ class Router:
         assert issubclass(url_resource, Resource), \
             "resource must be a subclass of deez.resource.Resource"
 
+        self._validate_path(url_path)
+
         self._logger.debug("registering URL pattern '%s'", url_path)
 
-        self._validate_path(url_path)
         self._routes[url_path] = url_resource
         self._route_patterns.append(re.compile(str(url_path)))
 

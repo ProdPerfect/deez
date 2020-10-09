@@ -17,8 +17,8 @@ class Deez:
 
         self.settings = settings
         self.router = Router(self)
-        if hasattr(self.settings, 'MIDDLEWARE'):
-            self.middleware = resolve_middleware_classes(self.settings.MIDDLEWARE)
+        if hasattr(settings, 'MIDDLEWARE'):
+            self.middleware = resolve_middleware_classes(settings.MIDDLEWARE)
             self.middleware_reversed = reversed(self.middleware)
 
     def register_route(self, path, resource_class=None) -> None:
