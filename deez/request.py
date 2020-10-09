@@ -7,8 +7,8 @@ class Header:
     def __init__(self, headers: Dict[str, str]) -> None:
         self._headers = headers
 
-    def __getattr__(self, item: str) -> Optional[str]:
-        return self._headers.get(item.lower())
+    def get(self, key: str) -> Optional[str]:
+        return self._headers.get(key)
 
 
 class Post:
@@ -59,4 +59,4 @@ class Request:
         return self.raw_event['httpMethod']
 
     def __str__(self):
-        return f'Request: {self._cleaned_event}'
+        return '[%s] %s' % (self.method, self.__class__.__name__)

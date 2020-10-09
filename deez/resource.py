@@ -15,14 +15,14 @@ class Resource:
         assert method is not None
 
         if not hasattr(self, method):
-            raise ResourceError(f"{self._get_class_name()}'s '{method}' method not implemented!")
+            raise ResourceError(f"{self.get_class_name()}'s '{method}' method not implemented!")
         try:
             return getattr(self, method)(request=request, **kwargs)
         except TypeError as exc:
-            raise ResourceError(f'{self._get_class_name()}.{exc.args[0]}')
+            raise ResourceError(f'{self.get_class_name()}.{exc.args[0]}')
 
-    def _get_class_name(self) -> str:
+    def get_class_name(self) -> str:
         return self.__class__.__name__
 
     def __str__(self) -> str:
-        return self._get_class_name()
+        return self.get_class_name()
