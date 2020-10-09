@@ -123,18 +123,21 @@ class Router:
         if path in self._routes:
             raise DuplicateRouteError(f"\"{path}\" already defined")
 
-    def register(self, path: Union[str, Path], resource=None):
+    def register(self, path, resource=None):
         """
         Add a path to its internal registry with some validation
         to prevent duplicate routes from being registered.
         """
         url_path: Union[str, Path] = path
         url_resource: Type[Resource] = resource
+
         if isinstance(path, Path):
             url_path = path.regex
             url_resource = path.resource
-        else:
-            assert resource is not None
+
+        assert url_resource is not None
+        assert issubclass(url_resource, Resource), \
+            "resource must be a subclass of deez.resource.Resource"
 
         self._logger.debug("registering URL pattern '%s'", url_path)
 
