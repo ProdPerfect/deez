@@ -4,11 +4,11 @@ from typing import Any, Dict, Optional
 
 
 class Header:
-    def __init__(self, headers: Dict[str, str]) -> None:
-        self._headers = headers
+    def __init__(self, data: Dict[str, str]) -> None:
+        self.data = data
 
     def get(self, key: str) -> Optional[str]:
-        return self._headers.get(key)
+        return self.data.get(key)
 
 
 class Post:
