@@ -60,3 +60,6 @@ class Request:
 
     def __str__(self):
         return '[%s] %s' % (self.method, self.__class__.__name__)
+
+    def __getattr__(self, item):
+        return self.__dict__.get(item)

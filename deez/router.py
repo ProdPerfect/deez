@@ -97,22 +97,29 @@ class Router:
         middleware_reversed = self._app.middleware_reversed
 
         for _, middleware in enumerate(middleware_forward):
-            _request = middleware(resource=resource_class).before_request(request=request)
+            _request = middleware().before_request(request=request)
             if not _request:
-                raise RuntimeError(f"{middleware.__name__}.before_request did not return request object")
+                raise RuntimeError(
+                    "%s.before_request did not "
+                    "return request object" % middleware.__name__,
+                )
             request = _request
 
         kwargs = re_match.groupdict()
         response = resource_instance.dispatch(method=method, request=request, **kwargs)
         if not response:
-            raise NoResponseError(f'{resource_instance.get_class_name()} did not return a response')
+            raise NoResponseError(
+                '%s did not return a response' % resource_instance.get_class_name(),
+            )
 
         # middleware that needs to run before response
         for _, middleware in enumerate(middleware_reversed):
-            _response = middleware(resource=resource_class).before_response(response=response)
+            _response = middleware().before_response(response=response)
             if not _response:
                 raise RuntimeError(
-                    f"{middleware.__name__}.before_response did not return response object")
+                    "%s.before_response did not "
+                    "return response object" % middleware.__name__,
+                )
             response = _response
 
         return (

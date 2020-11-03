@@ -27,7 +27,7 @@ class HelloWorldResource4(HelloWorldResource):
 
 
 class GetByNameResource(Resource):
-    def get(self, request, customer_name=None, **kwargs):
+    def get(self, request, customer_name=None):
         return JsonResponse(data={'message': 'ok', 'customer_name': customer_name}, headers={'X-Lemi-Gang': 'Yeet'})
 
 
