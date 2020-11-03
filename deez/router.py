@@ -92,6 +92,11 @@ class Router:
         resource_class = self._routes[re_match.re.pattern]
         resource_instance = resource_class()
 
+        # stores url arguments on the request object so they can
+        # be used in places like middleware.
+        kwargs = re_match.groupdict()
+        request.kwargs = kwargs
+
         # middleware that needs to run before calling the resource
         middleware_forward = self._app.middleware
         middleware_reversed = self._app.middleware_reversed
@@ -105,7 +110,6 @@ class Router:
                 )
             request = _request
 
-        kwargs = re_match.groupdict()
         response = resource_instance.dispatch(method=method, request=request, **kwargs)
         if not response:
             raise NoResponseError(
