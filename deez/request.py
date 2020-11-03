@@ -49,6 +49,7 @@ class Request:
         self.GET = Get(event.get('queryStringParameters', {}))
         self.POST = Post(event.get('body', {}))
         self.HEADERS = Header(event.get('headers', {}))
+        self.kwargs = {}
 
     @property
     def path(self) -> str:
