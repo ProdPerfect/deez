@@ -2,6 +2,8 @@ import json
 from json import JSONDecodeError
 from typing import Any, Dict, Optional
 
+from deez.logger import get_logger
+
 
 class Header:
     def __init__(self, data: Dict[str, str]) -> None:
@@ -28,6 +30,10 @@ class Post:
             try:
                 self.data = json.loads(body)
             except JSONDecodeError:
+                get_logger().warning(
+                    "unable to decode `POST#data`. "
+                    "decoding must be handled manually and is "
+                    "available in POST#content.")
                 pass
 
     def get(self, key: str) -> Optional[Any]:
@@ -60,7 +66,7 @@ class Request:
         return self.raw_event['httpMethod']
 
     def __str__(self):
-        return '[%s] %s' % (self.method, self.__class__.__name__)
+        return '%s %s' % (self.method, self.path)
 
     def __getattr__(self, item):
         return self.__dict__.get(item)

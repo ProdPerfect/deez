@@ -30,13 +30,17 @@ class Router:
             for _, pattern in enumerate(self._route_patterns)
         ]
 
+        matched_patterns = list(filter(None, matched_patterns))
+
         if not matched_patterns:
             self._logger.debug("no matching URL patterns found for path: '%s'", path)
             return None
 
         matched_patterns_length = len(matched_patterns)
+
+        self._logger.debug("%s matching URL patterns found for path: '%s'", matched_patterns_length, path)
+
         if matched_patterns_length > 1:
-            self._logger.debug("%s matching URL pattern found for path: '%s'", matched_patterns_length, path)
             best_match = [
                 match for _, match in enumerate(matched_patterns)
                 if match and hasattr(self._routes[match.re.pattern], method)
