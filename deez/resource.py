@@ -1,4 +1,4 @@
-from deez.exceptions import ResourceError
+from deez.exceptions import MethodNotAllowed
 
 
 class Resource:
@@ -14,11 +14,7 @@ class Resource:
         assert method is not None
 
         if not hasattr(self, method):
-            raise ResourceError(
-                "%s's '%s' method not implemented!" % (
-                    self.get_class_name(), method,
-                ),
-            )
+            raise MethodNotAllowed("method not allowed!")
         return getattr(self, method)(request=request, **kwargs)
 
     def get_class_name(self) -> str:
