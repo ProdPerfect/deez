@@ -3,7 +3,9 @@ import re
 from functools import lru_cache
 from typing import Any, Dict, Optional, Tuple, Type, Union
 
-from deez.exceptions import BadRequest, DuplicateRouteError, NoResponseError, NotFound, PermissionDenied, UnAuthorized
+from deez.exceptions import (
+    BadRequest, DeezError, DuplicateRouteError,
+    MethodNotAllowed, NoResponseError, NotFound, PermissionDenied, UnAuthorized)
 from deez.logger import get_logger
 from deez.request import Request
 from deez.resource import Resource
@@ -103,12 +105,11 @@ class Router:
 
         # middleware that needs to run before calling the resource
         middleware_forward = self._app.middleware
-        middleware_reversed = self._app.middleware_reversed
 
         for _, middleware in enumerate(middleware_forward):
             _request = middleware().before_request(request=request)
             if not _request:
-                raise RuntimeError(
+                raise DeezError(
                     "%s.before_request did not "
                     "return request object" % middleware.__name__,
                 )
@@ -121,10 +122,12 @@ class Router:
             )
 
         # middleware that needs to run before response
+        middleware_reversed = self._app.middleware_reversed
+
         for _, middleware in enumerate(middleware_reversed):
             _response = middleware().before_response(response=response)
             if not _response:
-                raise RuntimeError(
+                raise DeezError(
                     "%s.before_response did not "
                     "return response object" % middleware.__name__,
                 )
@@ -181,6 +184,8 @@ class Router:
             return self._make_response(403, data=json.dumps({'message': exc.args[0]}))
         except NotFound as exc:
             return self._make_response(404, data=json.dumps({'message': exc.args[0]}))
+        except MethodNotAllowed as exc:
+            return self._make_response(405, data=json.dumps({'message': exc.args[0]}))
 
     def _make_response(self, status_code, data, content_type='application/json', extra_headers=None):
         default_headers = {

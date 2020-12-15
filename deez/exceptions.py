@@ -28,3 +28,7 @@ class NotFound(ResourceError):
 
 class DuplicateRouteError(DeezError):
     """Thrown when a duplicate route is registered"""
+
+
+class MethodNotAllowed(DeezError):
+    """Thrown when a request is received with an unimplemented http verb"""

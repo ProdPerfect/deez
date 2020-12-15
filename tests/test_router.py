@@ -4,7 +4,7 @@ import os
 import unittest
 
 from deez.deez import Deez
-from deez.exceptions import NotFound, ResourceError
+from deez.exceptions import MethodNotAllowed, NotFound
 from deez.router import Router
 from deez.urls import path
 from tests.mock_event import event
@@ -129,9 +129,9 @@ class RouterTestCase(unittest.TestCase):
         _event['path'] = '/hello/world/1000/1000/1000'
         self.router.register(r'^/hello/world/1000/1000/1000', MethodNotImplementedResource)
 
-        with self.assertRaises(ResourceError) as e:
+        with self.assertRaises(MethodNotAllowed) as e:
             self.router.execute(_event, {})
-        self.assertEqual(e.exception.args[0], "MethodNotImplementedResource's 'get' method not implemented!")
+        self.assertEqual(e.exception.args[0], 'method not allowed!')
 
     def test_raises_404_when_route_not_found(self):
         self.router.register(r'^/hello/world/fail$', HelloWorldResource)
