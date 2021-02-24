@@ -11,5 +11,6 @@ mypy = "*"
 pylint = "*"
 rope = "*"
 autopep8 = "*"
+flake8 = "*"
 
 [packages]
