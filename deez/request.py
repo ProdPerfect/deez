@@ -33,7 +33,8 @@ class Post:
                 get_logger().warning(
                     "unable to decode `POST#data`. "
                     "decoding must be handled manually and is "
-                    "available in POST#content.")
+                    "available in POST#content."
+                )
                 pass
 
     def get(self, key: str) -> Optional[Any]:

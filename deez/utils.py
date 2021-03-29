@@ -9,7 +9,7 @@ def import_resolver(module_path: str) -> Type[Middleware]:
     Takes a string reference to a class and returns
     an actual Python class.
 
-    Example: "deez.middlware.Middleware"
+    Example: "deez.middleware.Middleware"
     """
     split_path = module_path.split('.')
     klass = split_path[-1]

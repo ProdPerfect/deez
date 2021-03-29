@@ -3,16 +3,15 @@ from deez.exceptions import MethodNotAllowed
 
 class Resource:
     """
-    Base Resource
+    Base API Resource
     """
 
-    def dispatch(self, method=None, request=None, **kwargs):
+    def dispatch(self, request=None, **kwargs):
         """
         Tries to call the underlying user-implemented method that is responsible for
         serving the HTTP Method.
         """
-        assert method is not None
-
+        method = request.method.lower()
         if not hasattr(self, method):
             raise MethodNotAllowed("method not allowed!")
         return getattr(self, method)(request=request, **kwargs)

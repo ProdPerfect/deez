@@ -115,7 +115,7 @@ class Router:
                 )
             request = _request
 
-        response = resource_instance.dispatch(method=method, request=request, **kwargs)
+        response = resource_instance.dispatch(request=request, **kwargs)
         if not response:
             raise NoResponseError(
                 '%s did not return a response' % resource_instance.get_class_name(),
