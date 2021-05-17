@@ -28,7 +28,7 @@ def register_alias(alias: str, regex: str) -> None:
         path('/ticket/<jira:id>')
     """
 
-    assert alias not in _RESERVED_ALIAS_NAMES, "%s is a reserved name" % alias
+    assert alias not in _RESERVED_ALIAS_NAMES, "%s is a reserved alias name" % alias
     _ALIAS_TO_REGEX[alias] = regex
 
 
