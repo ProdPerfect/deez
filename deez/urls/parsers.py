@@ -17,6 +17,17 @@ _ALIAS_TO_REGEX: Dict[str, str] = {
 }
 
 
+def register_alias(alias: str, regex: str) -> None:
+    """
+    Register a new alias to be used in application urls
+
+    ex:
+        register_alias('jira', r'DG-[0-9]{3}')
+        path('/ticket/<jira:id>')
+    """
+    _ALIAS_TO_REGEX[alias] = regex
+
+
 def find_patterns(value: str) -> List[str]:
     """
     Finds all <alias:name> parameters in a URL

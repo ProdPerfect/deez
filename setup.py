@@ -17,6 +17,9 @@ setup(name='deez',
       packages=find_packages(exclude=["tests"]),
       url='https://github.com/prodperfect/deez',
       include_package_data=True,
+      install_requires=[
+          "blinker>=1.4",
+      ],
       package_data={
           '': ['*.pyi'],
       },
