@@ -16,6 +16,21 @@ _ALIAS_TO_REGEX: Dict[str, str] = {
     'number': r'\d*[.,]?\d+',
 }
 
+_RESERVED_ALIAS_NAMES = {'int', 'str', 'slug', 'uuid', 'number'}
+
+
+def register_alias(alias: str, regex: str) -> None:
+    """
+    Register a new alias to be used in application urls
+
+    ex:
+        register_alias('jira', r'DG-[0-9]{3}')
+        path('/ticket/<jira:id>')
+    """
+
+    assert alias not in _RESERVED_ALIAS_NAMES, "%s is a reserved alias name" % alias
+    _ALIAS_TO_REGEX[alias] = regex
+
 
 def find_patterns(value: str) -> List[str]:
     """
