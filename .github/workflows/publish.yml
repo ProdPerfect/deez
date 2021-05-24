@@ -25,5 +25,5 @@ jobs:
         python -m pip install --upgrade pip
         pip install setuptools wheel twine pipenv
         pipenv install --dev
-        python setup.py sdist bdist_wheel
-        twine upload dist/* --repository-url https://push.fury.io/prodperfect -p ""
+        pipenv run python setup.py sdist bdist_wheel
+        pipenv run twine upload dist/* --repository-url https://push.fury.io/prodperfect -p ""
