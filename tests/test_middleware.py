@@ -5,7 +5,6 @@ from unittest import mock
 from deez.deez import Deez
 from deez.resource import Resource
 from deez.response import JsonResponse
-from deez.router import Router
 from deez.urls import path
 from tests.mock_event import event
 
@@ -21,9 +20,8 @@ class MiddlewareTestCase(unittest.TestCase):
         os.environ.setdefault('PROJECT_SETTINGS_MODULE', 'tests.settings')
         with mock.patch('tests.settings.MIDDLEWARE', ['tests.middleware.TestMiddleware']):
             app = Deez()
-            router = Router(app)
-            router.register(path('/hello/world', HelloWorldResource))
-            response = router.route(event, {})
+            app.register_route(path('/hello/world', HelloWorldResource))
+            response = app.router.route(event, {})
             self.assertEqual(
                 response,
                 {

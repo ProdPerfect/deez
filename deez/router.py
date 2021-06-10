@@ -1,15 +1,13 @@
 import json
-import re
 from functools import lru_cache
-from typing import Any, Dict, Optional, Tuple, Type, Union
+from typing import Any, Dict, Optional, Tuple
 
 from deez.exceptions import (
-    BadRequest, DeezError, DuplicateRouteError,
-    MethodNotAllowed, NoResponseError, NotFound, PermissionDenied, UnAuthorized)
+    BadRequest, DeezError, MethodNotAllowed,
+    NoResponseError, NotFound, PermissionDenied, UnAuthorized,
+)
 from deez.logger import get_logger
 from deez.request import Request
-from deez.resource import Resource
-from deez.urls import Path
 
 
 class Router:
@@ -18,10 +16,17 @@ class Router:
     and executing middleware -- it's the core of Deez.
     """
 
-    def __init__(self, app):
-        self._app = app
-        self._routes = {}
-        self._route_patterns = []
+    def __init__(self, *,
+                 routes,
+                 route_patterns,
+                 settings,
+                 middleware,
+                 middleware_reversed, ):
+        self._routes = routes
+        self._settings = settings
+        self._middleware = middleware
+        self._middleware_reversed = middleware_reversed
+        self._route_patterns = route_patterns
         self._logger = get_logger()
 
     @lru_cache(maxsize=1000)
@@ -33,7 +38,6 @@ class Router:
         ]
 
         matched_patterns = list(filter(None, matched_patterns))
-
         if not matched_patterns:
             self._logger.debug("no matching URL patterns found for path: '%s'", path)
             return None
@@ -80,8 +84,10 @@ class Router:
 
         return matched_patterns[0]
 
-    def execute(self, event: Dict[str, Any] = None,
-                context: Dict[str, Any] = None) -> Tuple[Optional[str], int, Dict[str, Any], str]:
+    def execute(self,
+                event: Dict[str, Any] = None,
+                context: Dict[str, Any] = None
+                ) -> Tuple[Optional[str], int, Dict[str, Any], str]:
         """
         This is where the resource calling and middleware execution _really_ happens.
         Probably deserves a much longer comment, but I feel like for now it's pretty
@@ -104,7 +110,7 @@ class Router:
         request.kwargs = kwargs
 
         # middleware that needs to run before calling the resource
-        middleware_forward = self._app.middleware
+        middleware_forward = self._middleware
 
         for _, middleware in enumerate(middleware_forward):
             _request = middleware().before_request(request=request)
@@ -122,7 +128,7 @@ class Router:
             )
 
         # middleware that needs to run before response
-        middleware_reversed = self._app.middleware_reversed
+        middleware_reversed = self._middleware_reversed
 
         for _, middleware in enumerate(middleware_reversed):
             _response = middleware().before_response(response=response)
@@ -139,33 +145,6 @@ class Router:
             response.headers,
             response.content_type,
         )
-
-    def _validate_path(self, path):
-        if path in self._routes:
-            raise DuplicateRouteError(f"\"{path}\" already defined")
-
-    def register(self, path, resource=None):
-        """
-        Add a path to its internal registry with some validation
-        to prevent duplicate routes from being registered.
-        """
-        url_path: Union[str, Path] = path
-        url_resource: Type[Resource] = resource
-
-        if isinstance(path, Path):
-            url_path = path.regex
-            url_resource = path.resource
-
-        assert url_resource is not None
-        assert issubclass(url_resource, Resource), \
-            "resource must be a subclass of deez.resource.Resource"
-
-        self._validate_path(url_path)
-
-        self._logger.debug("registering URL pattern '%s'", url_path)
-
-        self._routes[url_path] = url_resource
-        self._route_patterns.append(re.compile(str(url_path)))
 
     def route(self, event, context):
         """
