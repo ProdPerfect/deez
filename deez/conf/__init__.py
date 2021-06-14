@@ -13,6 +13,10 @@ def load_settings_module():
     return setting
 
 
+def proxy_method(cls, attr):
+    return object.__getattribute__(cls, attr)
+
+
 class Setting:
     def __init__(self):
         self._loaded = False
@@ -26,14 +30,11 @@ class Setting:
         for setting in dir(imp):
             setattr(self, setting, getattr(imp, setting))
 
-    def __dir__(self):
-        return [k for k in self.__dict__.keys() if k.isupper()]
-
     def __getattr__(self, item):
         if not self._loaded:
             self._setup()
             self._loaded = True
-        return getattr(self, item)
+        return proxy_method(self, item)
 
     def _reload(self):
         # only used for debugging purposes
