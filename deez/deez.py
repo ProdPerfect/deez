@@ -56,10 +56,12 @@ class Deez:
         Add a path to its internal registry with some validation
         to prevent duplicate routes from being registered.
         """
+        raw_url: str = path
         url_path: Union[str, Path] = path
         url_resource: Type[Resource] = resource
 
         if isinstance(path, Path):
+            raw_url = path.raw_url
             url_path = path.regex
             url_resource = path.resource
 
@@ -69,7 +71,7 @@ class Deez:
 
         self._validate_path(url_path)
 
-        self._logger.debug("registering URL pattern '%s'", url_path)
+        self._logger.debug("registering URL path '%s'", raw_url)
 
         self.routes[url_path] = url_resource
         self.route_patterns.append(re.compile(str(url_path)))
