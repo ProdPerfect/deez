@@ -1,0 +1,4 @@
+deez 0.6.2, 2021-06-23
+----------------------
+* `class:Path` now has an `raw_url` attribute, which provides access to the raw string before it is turned to regex
+* on start up, Deez now uses `raw_url` instead of `regex` for logging the registered urls in debug mode
