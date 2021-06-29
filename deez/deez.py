@@ -2,13 +2,13 @@ import re
 from typing import Type, Union
 
 from deez.conf import Setting
+from deez.core.router import Router
+from deez.core.signals import application_setup_finished, application_setup_started
 from deez.exceptions import DuplicateRouteError
 from deez.logger import get_logger
 from deez.resource import Resource
-from deez.router import Router
-from deez.signals import application_setup_finished, application_setup_started
 from deez.urls import Path
-from deez.utils import resolve_middleware_classes
+from deez.utils import import_resolver, resolve_middleware_classes
 
 
 class Deez:
@@ -25,6 +25,7 @@ class Deez:
     def _setup(self) -> None:
         # notify subscribers that setup has started
         application_setup_started.send(self)
+        self._logger.debug("application_setup_started signal sent")
 
         from deez.conf import settings
 
@@ -39,10 +40,12 @@ class Deez:
             middleware=self.middleware,
             route_patterns=self.route_patterns,
             middleware_reversed=self.middleware_reversed,
+            exception_handler=import_resolver(settings.EXCEPTION_HANDLER)
         )
 
         # notify subscribers that setup has finished
         application_setup_finished.send(self)
+        self._logger.debug("application_setup_finished signal sent")
 
     def register_route(self, path, resource_class=None) -> None:
         self._register(path=path, resource=resource_class)

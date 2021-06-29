@@ -1,11 +1,9 @@
-import json
 from functools import lru_cache
 from typing import Any, Dict, Optional, Tuple
 
+from deez.core.gateway import api_gateway_response
 from deez.exceptions import (
-    BadRequest, DeezError, MethodNotAllowed,
-    NoResponseError, NotFound, PermissionDenied, UnAuthorized,
-)
+    DeezError, NoResponseError, NotFound, )
 from deez.logger import get_logger
 from deez.request import Request
 
@@ -21,15 +19,17 @@ class Router:
                  route_patterns,
                  settings,
                  middleware,
-                 middleware_reversed, ):
+                 middleware_reversed,
+                 exception_handler):
         self._routes = routes
         self._settings = settings
         self._middleware = middleware
         self._middleware_reversed = middleware_reversed
         self._route_patterns = route_patterns
+        self._exception_handler = exception_handler
         self._logger = get_logger()
 
-    @lru_cache(maxsize=1000)
+    @lru_cache(maxsize=10000)
     def _get_re_match(self, path: str, method: str):
         self._logger.debug("finding URL pattern match for path: '%s'", path)
         matched_patterns = [
@@ -146,42 +146,18 @@ class Router:
             response.content_type,
         )
 
-    def route(self, event, context):
+    def route(self, event, context) -> Dict[str, Any]:
         """
         Handles Deez exceptions thrown in middleware and resources
         and maps them to valid responses and status codes.
         """
         try:
             response, status_code, headers, content_type = self.execute(event=event, context=context)
-            return self._make_response(status_code, response,
-                                       content_type=content_type, extra_headers=headers)
-        except BadRequest as exc:
-            return self._make_response(400, data=json.dumps({'message': exc.args[0]}))
-        except UnAuthorized as exc:
-            return self._make_response(401, data=json.dumps({'message': exc.args[0]}))
-        except PermissionDenied as exc:
-            return self._make_response(403, data=json.dumps({'message': exc.args[0]}))
-        except NotFound as exc:
-            return self._make_response(404, data=json.dumps({'message': exc.args[0]}))
-        except MethodNotAllowed as exc:
-            return self._make_response(405, data=json.dumps({'message': exc.args[0]}))
-
-    def _make_response(self, status_code, data, content_type='application/json', extra_headers=None):
-        default_headers = {
-            'Access-Control-Allow-Origin': '*',
-            'X-Content-Type-Options': 'nosniff'
-        }
-
-        if content_type:
-            default_headers['Content-Type'] = content_type
-
-        if extra_headers:
-            default_headers.update(**extra_headers)
-
-        response = {
-            'isBase64Encoded': False,
-            'statusCode': status_code,
-            'body': data,
-            'headers': default_headers
-        }
-        return response
+            return api_gateway_response(
+                status_code=status_code,
+                data=response,
+                content_type=content_type,
+                extra_headers=headers
+            )
+        except RuntimeError as exc:
+            return self._exception_handler(exc)
