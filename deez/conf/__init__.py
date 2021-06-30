@@ -1,5 +1,6 @@
 import importlib
 import os
+from typing import Any, Dict
 
 from deez.conf import default_settings
 
@@ -20,6 +21,7 @@ def proxy_method(cls, attr):
 class Setting:
     def __init__(self):
         self._loaded = False
+        self._extended = {}
 
     def _setup(self):
         for setting in dir(default_settings):
@@ -39,6 +41,13 @@ class Setting:
     def _reload(self):
         # only used for debugging purposes
         self._setup()
+
+    def extend(self, *, configurations: Dict[str, Any]) -> None:
+        """Note: experimental!!
+        """
+        for k, v in configurations.items():
+            self._extended = configurations
+            setattr(self, k, v)
 
 
 settings = Setting()
