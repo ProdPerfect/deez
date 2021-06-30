@@ -5,9 +5,9 @@ from logging import Logger
 from typing import Any, Dict, List, NoReturn, Optional, Pattern, Type, Union
 
 from deez.conf import Setting
+from deez.core.router import Router
 from deez.middleware import Middleware
 from deez.resource import Resource
-from deez.router import Router
 from deez.urls import Path
 
 

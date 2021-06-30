@@ -34,4 +34,4 @@ class MiddlewareTestCase(unittest.TestCase):
                     }
                 }
             )
-        mock.patch.stopall()
+            mock.patch.stopall()
