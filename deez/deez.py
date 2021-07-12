@@ -1,5 +1,5 @@
 import re
-from typing import Type, Union
+from typing import Type, Union, List
 
 from deez.conf import Setting
 from deez.core.router import Router
@@ -49,6 +49,13 @@ class Deez:
 
     def register_route(self, path, resource_class=None) -> None:
         self._register(path=path, resource=resource_class)
+
+    def register_routes(self, paths: List[Path]) -> None:
+        """register routes in bulk"""
+        assert isinstance(paths, (list, tuple))
+        assert len(paths) > 0, "expected at least one path"
+        for path in paths:
+            self.register_route(path)
 
     def _validate_path(self, path):
         if path in self.routes:
