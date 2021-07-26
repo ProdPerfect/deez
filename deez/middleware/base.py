@@ -1,35 +1,24 @@
-from functools import lru_cache
 from re import Pattern
+from typing import Optional
+
+from deez.request import Request
+from deez.response import Response
 
 
 class Middleware:
-    """default base middleware implementation
+    """base class for implementing middleware
     """
-    scoped: bool = False
 
-    def before_request(self, request):
+    def __init__(self) -> None:
+        self.scoped: bool = False
+        self.path_regex: Optional[Pattern] = None
+
+    def before_request(self, request: Request) -> Request:
         return request
 
-    def before_response(self, response):
+    def before_response(self, response: Response) -> Response:
         return response
 
-    @classmethod
-    def run(cls, path: str) -> bool:
-        return True
-
-
-_invalid_regex = """`path_regex` should be a valid compiled regex pattern"""
-
-
-class ScopedMiddleware(Middleware):
-    """
-    middleware that can be scoped to only run on a request path match.
-    """
-    scoped: bool = True
-    path_regex: Pattern = None
-
-    @classmethod
-    @lru_cache()
-    def run(cls, path: str) -> bool:
-        assert isinstance(cls.path_regex, Pattern), _invalid_regex
-        return cls.scoped and cls.path_regex.match(path)
+    def run(self, path: str) -> bool:
+        return (not self.scoped
+                or (self.scoped and self.path_regex.match(path)))

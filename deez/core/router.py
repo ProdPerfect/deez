@@ -117,7 +117,7 @@ class Router:
             if not middleware.run(request.path):
                 continue
 
-            _request = middleware().before_request(request=request)
+            _request = middleware.before_request(request=request)
             if not _request:
                 raise DeezError(
                     "%s.before_request did not "
@@ -139,7 +139,7 @@ class Router:
             if not middleware.run(request.path):
                 continue
 
-            _response = middleware().before_response(response=response)
+            _response = middleware.before_response(response=response)
             if not _response:
                 raise DeezError(
                     "%s.before_response did not "

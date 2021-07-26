@@ -4,7 +4,7 @@ import unittest
 from unittest import mock
 
 from deez.deez import Deez
-from deez.middleware.base import ScopedMiddleware
+from deez.middleware import Middleware
 from deez.resource import Resource
 from deez.response import JsonResponse
 from deez.urls import path
@@ -39,8 +39,11 @@ class MiddlewareTestCase(unittest.TestCase):
             mock.patch.stopall()
 
     def test_scoped_middleware(self):
-        class TestScopedMiddleware(ScopedMiddleware):
-            path_regex = re.compile(r"/hello/.*$")
+        class TestScopedMiddleware(Middleware):
+            def __init__(self):
+                super().__init__()
+                self.scoped = True
+                self.path_regex = re.compile(r"/hello/world")
 
         m = TestScopedMiddleware()
         self.assertTrue(m.scoped)
