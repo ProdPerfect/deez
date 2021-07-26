@@ -6,12 +6,16 @@ from deez.response import Response
 
 
 class Middleware:
-    """base class for implementing middleware
+    """
+    base class for implementing middleware
     """
 
     def __init__(self) -> None:
-        self.scoped: bool = False
         self.path_regex: Optional[Pattern] = None
+
+    @property
+    def is_scoped(self) -> bool:
+        return True if self.path_regex else False
 
     def before_request(self, request: Request) -> Request:
         return request
@@ -20,5 +24,5 @@ class Middleware:
         return response
 
     def run(self, path: str) -> bool:
-        return (not self.scoped
-                or (self.scoped and self.path_regex.match(path)))
+        return (not self.is_scoped
+                or (self.is_scoped and self.path_regex.match(path)))

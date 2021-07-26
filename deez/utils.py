@@ -36,7 +36,6 @@ def middleware_resolver(
             instance: Middleware = import_resolver(m)()
         else:
             instance: Middleware = import_resolver(m['middleware'])()
-            setattr(instance, "scoped", True)
             setattr(instance, "path_regex", m['scope'])
 
         # for the time being, we're being strict about what actually is considered

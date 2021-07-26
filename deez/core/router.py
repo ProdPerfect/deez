@@ -113,7 +113,7 @@ class Router:
         middleware_forward = self._middleware
 
         for _, middleware in enumerate(middleware_forward):
-            # skip any scoped middleware that does match a `request.path`
+            # skip any scoped middleware that does not match a `request.path`
             if not middleware.run(request.path):
                 continue
 
@@ -135,7 +135,7 @@ class Router:
         middleware_reversed = self._middleware_reversed
 
         for _, middleware in enumerate(middleware_reversed):
-            # skip any scoped middleware that does match a request.path
+            # skip any scoped middleware that does not match a `request.path`
             if not middleware.run(request.path):
                 continue
 

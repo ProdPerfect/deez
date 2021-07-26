@@ -10,7 +10,7 @@ class UtilityFunctionTestCases(unittest.TestCase):
         refs = ['tests.middleware.TestMiddleware']
         resolved_refs = middleware_resolver(refs)
         self.assertTrue(len(resolved_refs) == 1)
-        self.assertFalse(resolved_refs[0].scoped)
+        self.assertFalse(resolved_refs[0].is_scoped)
 
     def test_resolve_scoped_middleware(self):
         refs = [
@@ -21,4 +21,4 @@ class UtilityFunctionTestCases(unittest.TestCase):
         ]
         resolved_refs = middleware_resolver(refs)
         self.assertTrue(len(resolved_refs) == 1)
-        self.assertTrue(resolved_refs[0].scoped)
+        self.assertTrue(resolved_refs[0].is_scoped)
