@@ -40,13 +40,9 @@ class MiddlewareTestCase(unittest.TestCase):
 
     def test_scoped_middleware(self):
         class TestScopedMiddleware(Middleware):
-            def __init__(self):
-                super().__init__()
-                self.scoped = True
-                self.path_regex = re.compile(r"/hello/world")
+            pass
 
-        m = TestScopedMiddleware()
-        self.assertTrue(m.scoped)
+        m = TestScopedMiddleware(path_regex=re.compile(r"/hello/world"))
         # runs when path_regex matches request path
         self.assertTrue(m.run("/hello/world"))
         # does not run when path_regex does not match request path
