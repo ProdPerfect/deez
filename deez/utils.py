@@ -36,8 +36,7 @@ def middleware_resolver(
         if isinstance(m, str):
             instance = import_resolver(m)()
         else:
-            instance = import_resolver(m['middleware'])()
-            setattr(instance, "path_regex", m['scope'])
+            instance = import_resolver(m['middleware'])(path_regex=m['scope'])
 
         # for the time being, we're being strict about what actually is considered
         # a valid middleware class.

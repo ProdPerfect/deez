@@ -9,8 +9,8 @@ class Middleware:
     base class for implementing middleware
     """
 
-    def __init__(self) -> None:
-        self.path_regex: Optional[Pattern] = None
+    def __init__(self, path_regex: Optional[Pattern] = None) -> None:
+        self.path_regex = path_regex
 
     def before_request(self, request: Request) -> Request:
         return request
@@ -19,4 +19,4 @@ class Middleware:
         return response
 
     def run(self, path: str) -> bool:
-        return bool(self.path_regex and self.path_regex.match(path))
+        return not self.path_regex or bool(self.path_regex.match(path))
