@@ -31,11 +31,12 @@ def middleware_resolver(
     unsupported_type = "unsupported type %s used as middleware reference"
     middlewares = []
     for m in middleware_classes:
+        instance: Middleware
         assert isinstance(m, (str, dict)), unsupported_type % type(m)
         if isinstance(m, str):
-            instance: Middleware = import_resolver(m)()
+            instance = import_resolver(m)()
         else:
-            instance: Middleware = import_resolver(m['middleware'])()
+            instance = import_resolver(m['middleware'])()
             setattr(instance, "path_regex", m['scope'])
 
         # for the time being, we're being strict about what actually is considered
