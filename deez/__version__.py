@@ -1,3 +1,3 @@
-__author__ = 'Lemuel Boyce'
-__email__ = 'lemuelboyce@gmail.com'
-__version__ = '0.6.5'
+__author__ = 'Lemuel Boyce, Daniel Brady'
+__email__ = 'lemi@prodperfect.com, brady@prodperfect.com'
+__version__ = '0.7.0'

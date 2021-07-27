@@ -8,7 +8,7 @@ from deez.exceptions import DuplicateRouteError
 from deez.logger import get_logger
 from deez.resource import Resource
 from deez.urls import Path
-from deez.utils import import_resolver, resolve_middleware_classes
+from deez.utils import import_resolver, middleware_resolver
 
 
 class Deez:
@@ -31,7 +31,7 @@ class Deez:
 
         self.settings = settings
         if hasattr(settings, 'MIDDLEWARE'):
-            self.middleware = resolve_middleware_classes(settings.MIDDLEWARE)
+            self.middleware = middleware_resolver(settings.MIDDLEWARE)
             self.middleware_reversed = list(reversed(self.middleware))
 
         self.router = Router(

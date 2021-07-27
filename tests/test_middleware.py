@@ -1,8 +1,10 @@
 import os
+import re
 import unittest
 from unittest import mock
 
 from deez.deez import Deez
+from deez.middleware import Middleware
 from deez.resource import Resource
 from deez.response import JsonResponse
 from deez.urls import path
@@ -35,3 +37,13 @@ class MiddlewareTestCase(unittest.TestCase):
                 }
             )
             mock.patch.stopall()
+
+    def test_scoped_middleware(self):
+        class TestScopedMiddleware(Middleware):
+            pass
+
+        m = TestScopedMiddleware(path_regex=re.compile(r"/hello/world"))
+        # runs when path_regex matches request path
+        self.assertTrue(m.run("/hello/world"))
+        # does not run when path_regex does not match request path
+        self.assertFalse(m.run("/hella/weird"))

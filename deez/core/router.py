@@ -113,7 +113,11 @@ class Router:
         middleware_forward = self._middleware
 
         for _, middleware in enumerate(middleware_forward):
-            _request = middleware().before_request(request=request)
+            # skip any scoped middleware that does not match a `request.path`
+            if not middleware.run(request.path):
+                continue
+
+            _request = middleware.before_request(request=request)
             if not _request:
                 raise DeezError(
                     "%s.before_request did not "
@@ -131,7 +135,11 @@ class Router:
         middleware_reversed = self._middleware_reversed
 
         for _, middleware in enumerate(middleware_reversed):
-            _response = middleware().before_response(response=response)
+            # skip any scoped middleware that does not match a `request.path`
+            if not middleware.run(request.path):
+                continue
+
+            _response = middleware.before_response(response=response)
             if not _response:
                 raise DeezError(
                     "%s.before_response did not "
