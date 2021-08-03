@@ -6,6 +6,9 @@ class Resource:
     Base API Resource
     """
 
+    def __init__(self) -> None:
+        self.kwargs = None
+
     def dispatch(self, request=None, **kwargs):
         """
         Tries to call the underlying user-implemented method that is responsible for

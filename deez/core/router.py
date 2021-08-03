@@ -107,7 +107,8 @@ class Router:
         # stores url arguments on the request object so they can
         # be used in places like middleware.
         kwargs = re_match.groupdict()
-        request.kwargs = kwargs
+        setattr(request, 'kwargs', kwargs)
+        setattr(resource_instance, 'kwargs', kwargs)
 
         # middleware that needs to run before calling the resource
         middleware_forward = self._middleware
