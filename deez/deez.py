@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Type, Union, List
+from typing import Type, Union, List, Dict, Pattern
 
 from deez.conf import Setting
 from deez.core.router import Router
@@ -10,6 +10,7 @@ from deez.core.signals import (
     application_routes_registered,
 )
 from deez.exceptions import DuplicateRouteError
+from deez.middleware import Middleware
 from deez.resource import Resource
 from deez.urls import Path
 from deez.utils import import_resolver, middleware_resolver
@@ -20,11 +21,11 @@ _logger = logging.getLogger(__file__)
 class Deez:
     def __init__(self) -> None:
         self.router: Router
-        self.routes = {}
+        self.routes: Dict[str, Type[Resource]] = {}
         self.settings: Setting
-        self.middleware = []
-        self.route_patterns = []
-        self.middleware_reversed = []
+        self.middleware: List[Middleware] = []
+        self.route_patterns: List[Pattern] = []
+        self.middleware_reversed: List[Middleware] = []
         self._setup()
 
     def _setup(self) -> None:

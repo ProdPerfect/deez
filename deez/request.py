@@ -18,7 +18,7 @@ class Header:
 
 class Post:
     def __init__(self, body: str) -> None:
-        self.data = {}
+        self.data: Dict[str, Any] = {}
         self.content = body
         self._loads(body)
 
@@ -58,7 +58,7 @@ class Request:
         self.GET = Get(event.get('queryStringParameters', {}))
         self.POST = Post(event.get('body', {}))
         self.HEADERS = Header(event.get('headers', {}))
-        self.kwargs = {}
+        self.kwargs: Dict[str, Any] = {}
 
     @property
     def path(self) -> str:

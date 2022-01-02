@@ -21,4 +21,4 @@ def path(url: str, resource: Type[Resource]) -> Path:
     return Path(regex, resource, raw_url=url)
 
 
-__all__ = [Path, path]
+__all__ = ['Path', 'path']
