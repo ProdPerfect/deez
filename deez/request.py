@@ -1,8 +1,11 @@
 import json
+import logging
 from json import JSONDecodeError
 from typing import Any, Dict, Optional
 
-from deez.logger import get_logger
+from deez.helpers import method_proxy
+
+_logger = logging.getLogger(__file__)
 
 
 class Header:
@@ -30,12 +33,11 @@ class Post:
             try:
                 self.data = json.loads(body)
             except JSONDecodeError:
-                get_logger().warning(
+                _logger.warning(
                     "unable to decode `POST#data`. "
                     "decoding must be handled manually and is "
                     "available in POST#content."
                 )
-                pass
 
     def get(self, key: str) -> Optional[Any]:
         return self.data.get(key)
@@ -50,7 +52,7 @@ class Get:
 
 
 class Request:
-    def __init__(self, event, context):
+    def __init__(self, event: Dict[str, Any], context: Dict[str, Any]):
         self.raw_event = event
         self.lambda_context = context
         self.GET = Get(event.get('queryStringParameters', {}))
@@ -70,4 +72,4 @@ class Request:
         return '%s %s' % (self.method, self.path)
 
     def __getattr__(self, item):
-        return self.__dict__.get(item)
+        return method_proxy(self, item)

@@ -3,6 +3,7 @@ import re
 import unittest
 from unittest import mock
 
+from deez.conf import settings
 from deez.deez import Deez
 from deez.middleware import Middleware
 from deez.resource import Resource
@@ -18,25 +19,28 @@ class HelloWorldResource(Resource):
 
 class MiddlewareTestCase(unittest.TestCase):
 
-    def test_can_route_correctly(self):
-        os.environ.setdefault('PROJECT_SETTINGS_MODULE', 'tests.settings')
-        with mock.patch('tests.settings.MIDDLEWARE', ['tests.middleware.TestMiddleware']):
-            app = Deez()
-            app.register_route(path('/hello/world', HelloWorldResource))
-            response = app.router.route(event, {})
-            self.assertEqual(
-                response,
-                {
-                    'isBase64Encoded': False, 'statusCode': 200,
-                    'body': '{"statusCode": 200, "message": "hello world", "user": {"name": "Lemi", "age": 1000000}}',
-                    'headers': {
-                        'Content-Type': 'application/json',
-                        'Access-Control-Allow-Origin': '*',
-                        'X-Content-Type-Options': 'nosniff'
-                    }
+    @mock.patch.dict(os.environ, {'PROJECT_SETTINGS_MODULE': 'tests.settings'}, clear=True)
+    def setUp(self, *args, **kwargs) -> None:
+        from deez.conf import settings
+        settings.configure()
+
+    @mock.patch.object(settings, 'MIDDLEWARE', ['tests.middleware.TestMiddleware'])
+    def test_modifies_response(self):
+        app = Deez()
+        app.register_route(path('/hello/world', HelloWorldResource))
+        response = app.router.route(event, {})
+        self.assertEqual(
+            response,
+            {
+                'isBase64Encoded': False, 'statusCode': 200,
+                'body': '{"statusCode": 200, "message": "hello world", "user": {"name": "Lemi", "age": 1000000}}',
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                    'X-Content-Type-Options': 'nosniff'
                 }
-            )
-            mock.patch.stopall()
+            }
+        )
 
     def test_scoped_middleware(self):
         class TestScopedMiddleware(Middleware):

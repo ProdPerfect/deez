@@ -13,6 +13,7 @@ class User:
 class TestMiddleware(Middleware):
     def before_request(self, request):
         request.user = User()
+        print(request.user)
         return request
 
     def before_response(self, response):
