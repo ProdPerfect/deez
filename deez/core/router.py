@@ -155,10 +155,6 @@ class Router:
         )
 
     def route(self, event, context) -> Dict[str, Any]:
-        """
-        Handles Deez exceptions thrown in middleware and resources
-        and maps them to valid responses and status codes.
-        """
         try:
             response, status_code, headers, content_type = self.execute(event=event, context=context)
             return api_gateway_response(

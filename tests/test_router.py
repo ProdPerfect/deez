@@ -2,6 +2,7 @@ import copy
 import json
 import os
 import unittest
+from unittest import mock
 
 from deez.deez import Deez
 from deez.exceptions import MethodNotAllowed, NotFound
@@ -15,17 +16,17 @@ from tests.mock_resources import (
 
 
 class RouterTestCase(unittest.TestCase):
-
+    @mock.patch.dict(os.environ, {'PROJECT_SETTINGS_MODULE': 'tests.settings'}, clear=True)
     def setUp(self, *args, **kwargs) -> None:
-        os.environ.setdefault('PROJECT_SETTINGS_MODULE', 'settings')
+        from deez.conf import settings
+        settings.configure()
+
         app = Deez()
-        app.settings._reload()
         self.app = app
         self.router = app.router
 
     def test_can_route_correctly(self, *args, **kwargs):
         app = Deez()
-        app.settings._reload()
         app.register_route(r'^/hello/world$', HelloWorldResource)
         response, status_code, _, _ = app.router.execute(event, {})
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
@@ -33,7 +34,6 @@ class RouterTestCase(unittest.TestCase):
 
     def test_can_route_correctly_with_str_path(self, *args, **kwargs):
         app = Deez()
-        app.settings._reload()
         app.register_route(path('/hello/<str:customer_name>', GetByNameResource))
         response, status_code, _, _ = app.router.execute(event, {})
         self.assertEqual(json.dumps({'message': 'ok', 'customer_name': 'world'}), response)
@@ -49,7 +49,6 @@ class RouterTestCase(unittest.TestCase):
         _event = copy.deepcopy(event)
         _event['path'] = '/hello/1/'
         app = Deez()
-        app.settings._reload()
         app.register_route(path('/hello/<int:world>/', HelloWorldResource))
         response, status_code, _, _ = app.router.execute(_event, {})
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
@@ -59,7 +58,6 @@ class RouterTestCase(unittest.TestCase):
         _event = copy.deepcopy(event)
         _event['path'] = '/hello/10.00/stacks'
         app = Deez()
-        app.settings._reload()
         app.register_route(path('/hello/<number:world>/stacks', HelloWorldResource))
         response, status_code, _, _ = app.router.execute(_event, {})
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
@@ -69,7 +67,6 @@ class RouterTestCase(unittest.TestCase):
         _event = copy.deepcopy(event)
         _event['path'] = '/hello/b4464968-98a3-4019-b198-83155241a8a6'
         app = Deez()
-        app.settings._reload()
         app.register_route(path('/hello/<uuid:world>', HelloWorldResource))
         response, status_code, _, _ = app.router.execute(_event, {})
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
@@ -79,7 +76,6 @@ class RouterTestCase(unittest.TestCase):
         _event = copy.deepcopy(event)
         _event['path'] = '/hello/hello-world-hello'
         app = Deez()
-        app.settings._reload()
         app.register_route(path('/hello/<slug:world>', HelloWorldResource))
         response, status_code, _, _ = app.router.execute(_event, {})
         self.assertEqual(json.dumps({'message': 'hello world'}), response)
@@ -87,7 +83,6 @@ class RouterTestCase(unittest.TestCase):
 
     def test_respects_response_status_code(self, *args, **kwargs):
         app = Deez()
-        app.settings._reload()
         app.register_route(r'^/hello/world$', HelloWorldResource2)
         response, status_code, _, _ = app.router.execute(event, {})
         self.assertEqual(json.dumps({'message': 'hello world 2'}), response)

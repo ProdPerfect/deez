@@ -1,31 +1,37 @@
+import logging
 import re
-from typing import Type, Union, List
+from typing import Type, Union, List, Dict, Pattern
 
 from deez.conf import Setting
 from deez.core.router import Router
-from deez.core.signals import application_setup_finished, application_setup_started
+from deez.core.signals import (
+    application_setup_finished,
+    application_setup_started,
+    application_routes_registered,
+)
 from deez.exceptions import DuplicateRouteError
-from deez.logger import get_logger
+from deez.middleware import Middleware
 from deez.resource import Resource
 from deez.urls import Path
 from deez.utils import import_resolver, middleware_resolver
+
+_logger = logging.getLogger(__file__)
 
 
 class Deez:
     def __init__(self) -> None:
         self.router: Router
-        self.routes = {}
+        self.routes: Dict[str, Type[Resource]] = {}
         self.settings: Setting
-        self.middleware = []
-        self.route_patterns = []
-        self.middleware_reversed = []
-        self._logger = get_logger()
+        self.middleware: List[Middleware] = []
+        self.route_patterns: List[Pattern] = []
+        self.middleware_reversed: List[Middleware] = []
         self._setup()
 
     def _setup(self) -> None:
         # notify subscribers that setup has started
         application_setup_started.send(self)
-        self._logger.debug("application_setup_started signal sent")
+        _logger.debug("application_setup_started signal sent")
 
         from deez.conf import settings
 
@@ -45,7 +51,7 @@ class Deez:
 
         # notify subscribers that setup has finished
         application_setup_finished.send(self)
-        self._logger.debug("application_setup_finished signal sent")
+        _logger.debug("application_setup_finished signal sent")
 
     def register_route(self, path, resource_class=None) -> None:
         self._register(path=path, resource=resource_class)
@@ -56,6 +62,8 @@ class Deez:
         assert len(paths) > 0, "expected at least one path"
         for path in paths:
             self.register_route(path)
+
+        application_routes_registered.send(self, routes=self.routes)
 
     def _validate_path(self, path):
         if path in self.routes:
@@ -81,7 +89,7 @@ class Deez:
 
         self._validate_path(url_path)
 
-        self._logger.debug("registering URL path '%s'", raw_url)
+        _logger.debug("registering URL path '%s'", raw_url)
 
         self.routes[url_path] = url_resource
         self.route_patterns.append(re.compile(str(url_path)))

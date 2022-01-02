@@ -1,8 +1,12 @@
 import json
+import logging
 from typing import Dict
 
 from deez.core.gateway import api_gateway_response
 from deez.exceptions import DeezError
+
+logger = logging.getLogger(__file__)
+logger.setLevel(logging.INFO)
 
 HTTP_EXCEPTION_STATUS_CODES: Dict[str, int] = {
     "BadRequest": 400,
@@ -25,4 +29,9 @@ def handler(exc, *args, **kwargs):
                     data=json.dumps({'message': exc.args[0]}),
                     status_code=code,
                 )
-    raise exc
+
+    logger.exception("an unexpected error occurred", exc_info=True)
+    return api_gateway_response(
+        data=json.dumps({'message': 'internal error'}),
+        status_code=500,
+    )
