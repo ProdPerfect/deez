@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional, Union
 
 def api_gateway_response(
         status_code: int,
-        data: Union[str, Dict[str, Any]],
+        data: Union[Optional[str], Dict[str, Any]],
         content_type: str = 'application/json',
         extra_headers: Optional[Dict[str, str]] = None
 ) -> Dict[str, Any]:

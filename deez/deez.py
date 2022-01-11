@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Type, Union, List, Dict, Pattern
+from typing import Type, Union, List, Dict, Pattern, Any
 
 from deez.conf import Setting
 from deez.core.router import Router
@@ -96,5 +96,5 @@ class Deez:
         self.routes[url_path] = url_resource
         self.route_patterns.append(re.compile(str(url_path)))
 
-    def process_request(self, event, context):
+    def process_request(self, event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         return self.router.route(event, context)

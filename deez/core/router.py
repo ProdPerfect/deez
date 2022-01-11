@@ -1,3 +1,4 @@
+import re
 from functools import lru_cache
 from typing import Any, Dict, Optional, Tuple
 
@@ -61,7 +62,7 @@ class Router:
             if best_match_count == 1:
                 return best_match[0]
 
-            best_pattern = None
+            best_pattern: re.Match = best_match[0]  # default best match
             best_group_count = 0
 
             for _, best in enumerate(best_match):
@@ -99,10 +100,11 @@ class Router:
             middleware.before_response(response=response)
         return request
 
-    def execute(self,
-                event: Dict[str, Any] = None,
-                context: Dict[str, Any] = None
-                ) -> Tuple[Optional[str], int, Dict[str, Any], str]:
+    def execute(
+            self,
+            event: Dict[str, Any],
+            context: Dict[str, Any]
+    ) -> Tuple[Optional[str], int, Dict[str, Any], str]:
         """
         This is where the resource calling and middleware execution _really_ happens.
         Probably deserves a much longer comment, but I feel like for now it's pretty
@@ -144,7 +146,7 @@ class Router:
             response.content_type,
         )
 
-    def route(self, event, context) -> Dict[str, Any]:
+    def route(self, event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         try:
             response, status_code, headers, content_type = self.execute(event=event, context=context)
             return api_gateway_response(
