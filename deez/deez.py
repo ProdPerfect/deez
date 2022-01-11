@@ -1,4 +1,3 @@
-import logging
 import re
 from typing import Type, Union, List, Dict, Pattern, Any
 
@@ -15,10 +14,6 @@ from deez.middleware import Middleware
 from deez.resource import Resource
 from deez.urls import Path
 from deez.utils import import_resolver, middleware_resolver
-
-logging.basicConfig(
-    format="%(name)s: %(asctime)s %(levelname)s %(message)s"
-)
 
 
 class Deez:
