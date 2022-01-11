@@ -85,7 +85,7 @@ class Router:
 
         return matched_patterns[0]
 
-    def _iter_forward_middleware(self, middleware, request):
+    def _prepare_request(self, middleware, request):
         for _, middleware in enumerate(middleware):
             if not middleware.run(request.path):
                 continue
@@ -93,12 +93,12 @@ class Router:
             middleware.before_request(request=request)
         return request
 
-    def _iter_reverse_middleware(self, middleware, request, response):
+    def _prepare_response(self, middleware, request, response):
         for _, middleware in enumerate(middleware):
             if not middleware.run(request.path):
                 continue
             middleware.before_response(response=response)
-        return request
+        return response
 
     def execute(
             self,
@@ -127,7 +127,7 @@ class Router:
         request.kwargs = kwargs
 
         # middleware that needs to run before calling the resource
-        self._iter_forward_middleware(self._middleware, request)
+        request = self._prepare_request(self._middleware, request)
 
         response = resource_instance.dispatch(request=request, **kwargs)
         if not response:
@@ -137,7 +137,7 @@ class Router:
             )
 
         # middleware that needs to run before response
-        self._iter_reverse_middleware(self._middleware_reversed, request, response)
+        response = self._prepare_response(self._middleware_reversed, request, response)
 
         return (
             response.render(),
