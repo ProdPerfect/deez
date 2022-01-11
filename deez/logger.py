@@ -1,12 +1,14 @@
 import logging
-from functools import lru_cache
+
+from deez.conf import settings
+
+logging.basicConfig(
+    format="%(name)s: %(asctime)s %(levelname)s %(message)s"
+)
 
 
-@lru_cache()
-def get_logger():
-    from deez.conf import settings
-    logging.basicConfig(format=settings.LOGGER_MESSAGE_FORMAT)
-    logger = logging.getLogger('deez')
+def get_logger(name: str = 'deez'):
+    logger = logging.getLogger(name)
     if settings.DEBUG:
         logger.setLevel(logging.DEBUG)
     else:

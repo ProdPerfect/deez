@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional, Tuple
 
 from deez.core.gateway import api_gateway_response
 from deez.exceptions import (
-    DeezError, NoResponseError, NotFound, )
+    NoResponseError, NotFound, )
 from deez.logger import get_logger
 from deez.request import Request
 
@@ -27,7 +27,7 @@ class Router:
         self._middleware_reversed = middleware_reversed
         self._route_patterns = route_patterns
         self._exception_handler = exception_handler
-        self._logger = get_logger()
+        self._logger = get_logger('deez.router')
 
     @lru_cache(maxsize=10000)
     def _get_re_match(self, path: str, method: str):
@@ -84,6 +84,21 @@ class Router:
 
         return matched_patterns[0]
 
+    def _iter_forward_middleware(self, middleware, request):
+        for _, middleware in enumerate(middleware):
+            if not middleware.run(request.path):
+                continue
+
+            middleware.before_request(request=request)
+        return request
+
+    def _iter_reverse_middleware(self, middleware, request, response):
+        for _, middleware in enumerate(middleware):
+            if not middleware.run(request.path):
+                continue
+            middleware.before_response(response=response)
+        return request
+
     def execute(self,
                 event: Dict[str, Any] = None,
                 context: Dict[str, Any] = None
@@ -110,42 +125,17 @@ class Router:
         request.kwargs = kwargs
 
         # middleware that needs to run before calling the resource
-        middleware_forward = self._middleware
-
-        for _, middleware in enumerate(middleware_forward):
-            # skip any scoped middleware that does not match a `request.path`
-            if not middleware.run(request.path):
-                continue
-
-            _request = middleware.before_request(request=request)
-            if not _request:
-                raise DeezError(
-                    "%s.before_request did not "
-                    "return request object" % middleware.__name__,
-                )
-            request = _request
+        self._iter_forward_middleware(self._middleware, request)
 
         response = resource_instance.dispatch(request=request, **kwargs)
         if not response:
+            class_name = resource_instance.__class__.__name__
             raise NoResponseError(
-                '%s did not return a response' % resource_instance.get_class_name(),
+                '%s did not return a response' % class_name,
             )
 
         # middleware that needs to run before response
-        middleware_reversed = self._middleware_reversed
-
-        for _, middleware in enumerate(middleware_reversed):
-            # skip any scoped middleware that does not match a `request.path`
-            if not middleware.run(request.path):
-                continue
-
-            _response = middleware.before_response(response=response)
-            if not _response:
-                raise DeezError(
-                    "%s.before_response did not "
-                    "return response object" % middleware.__name__,
-                )
-            response = _response
+        self._iter_reverse_middleware(self._middleware_reversed, request, response)
 
         return (
             response.render(),

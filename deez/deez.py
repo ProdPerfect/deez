@@ -15,7 +15,11 @@ from deez.resource import Resource
 from deez.urls import Path
 from deez.utils import import_resolver, middleware_resolver
 
-_logger = logging.getLogger(__file__)
+logging.basicConfig(
+    format="%(name)s: %(asctime)s %(levelname)s %(message)s"
+)
+
+_logger = logging.getLogger('deez')
 
 
 class Deez:
@@ -31,7 +35,6 @@ class Deez:
     def _setup(self) -> None:
         # notify subscribers that setup has started
         application_setup_started.send(self)
-        _logger.debug("application_setup_started signal sent")
 
         from deez.conf import settings
 
@@ -51,7 +54,6 @@ class Deez:
 
         # notify subscribers that setup has finished
         application_setup_finished.send(self)
-        _logger.debug("application_setup_finished signal sent")
 
     def register_route(self, path, resource_class=None) -> None:
         self._register(path=path, resource=resource_class)
