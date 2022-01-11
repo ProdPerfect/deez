@@ -15,7 +15,7 @@ class Response:
         self.content_type = content_type
 
     @abstractmethod
-    def render(self, *args, **kwargs) -> Optional[str]:
+    def render(self, *args, **kwargs) -> str:
         pass
 
 
@@ -31,7 +31,7 @@ class JsonResponse(Response):
     def __init__(self, data=None, status_code: int = 200, headers: Dict[str, Any] = None):
         super().__init__(data=data, status_code=status_code, headers=headers, content_type='application/json')
 
-    def render(self, *args, **kwargs) -> Optional[str]:
+    def render(self, *args, **kwargs) -> str:
         return json.dumps(self.data)
 
 

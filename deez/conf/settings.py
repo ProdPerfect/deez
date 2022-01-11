@@ -31,7 +31,8 @@ class Setting:
     def _set_user_settings(self):
         imp = import_settings_module()
         for setting in dir(imp):
-            setattr(self, setting, getattr(imp, setting))
+            if setting.isupper():
+                setattr(self, setting, getattr(imp, setting))
 
     def configure(self) -> None:
         # skip setting attributes again if we've done it before
@@ -50,11 +51,6 @@ class Setting:
                 "You must call Setting.configure() before settings can be used."
             )
         return method_proxy(self, item)
-
-    def _reload(self):
-        # only used for debugging purposes
-        self._configured = False
-        self.configure()
 
     def extend(self, *, configurations: Dict[str, Any]) -> None:
         """Note: experimental!!

@@ -1,6 +1,5 @@
-import logging
 import re
-from typing import Type, Union, List, Dict, Pattern
+from typing import Type, Union, List, Dict, Pattern, Any
 
 from deez.conf import Setting
 from deez.core.router import Router
@@ -10,12 +9,11 @@ from deez.core.signals import (
     application_routes_registered,
 )
 from deez.exceptions import DuplicateRouteError
+from deez.logger import get_logger
 from deez.middleware import Middleware
 from deez.resource import Resource
 from deez.urls import Path
 from deez.utils import import_resolver, middleware_resolver
-
-_logger = logging.getLogger(__file__)
 
 
 class Deez:
@@ -26,12 +24,12 @@ class Deez:
         self.middleware: List[Middleware] = []
         self.route_patterns: List[Pattern] = []
         self.middleware_reversed: List[Middleware] = []
+        self._logger = get_logger('deez')
         self._setup()
 
     def _setup(self) -> None:
         # notify subscribers that setup has started
         application_setup_started.send(self)
-        _logger.debug("application_setup_started signal sent")
 
         from deez.conf import settings
 
@@ -51,7 +49,6 @@ class Deez:
 
         # notify subscribers that setup has finished
         application_setup_finished.send(self)
-        _logger.debug("application_setup_finished signal sent")
 
     def register_route(self, path, resource_class=None) -> None:
         self._register(path=path, resource=resource_class)
@@ -89,10 +86,10 @@ class Deez:
 
         self._validate_path(url_path)
 
-        _logger.debug("registering URL path '%s'", raw_url)
+        self._logger.debug("registering URL path '%s'", raw_url)
 
         self.routes[url_path] = url_resource
         self.route_patterns.append(re.compile(str(url_path)))
 
-    def process_request(self, event, context):
+    def process_request(self, event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         return self.router.route(event, context)
