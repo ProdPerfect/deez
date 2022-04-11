@@ -4,7 +4,9 @@ from typing import Any, Dict, Optional, Tuple
 
 from deez.core.gateway import api_gateway_response
 from deez.exceptions import (
-    NoResponseError, NotFound, )
+    NoResponseError,
+    NotFound,
+)
 from deez.logger import get_logger
 from deez.request import Request
 
@@ -15,27 +17,29 @@ class Router:
     and executing middleware -- it's the core of Deez.
     """
 
-    def __init__(self, *,
-                 routes,
-                 route_patterns,
-                 settings,
-                 middleware,
-                 middleware_reversed,
-                 exception_handler):
+    def __init__(
+        self,
+        *,
+        routes,
+        route_patterns,
+        settings,
+        middleware,
+        middleware_reversed,
+        exception_handler,
+    ):
         self._routes = routes
         self._settings = settings
         self._middleware = middleware
         self._middleware_reversed = middleware_reversed
         self._route_patterns = route_patterns
         self._exception_handler = exception_handler
-        self._logger = get_logger('deez.router')
+        self._logger = get_logger("deez.router")
 
     @lru_cache(maxsize=10000)
     def _get_re_match(self, path: str, method: str):
         self._logger.debug("finding URL pattern match for path: '%s'", path)
         matched_patterns = [
-            pattern.search(path)
-            for _, pattern in enumerate(self._route_patterns)
+            pattern.search(path) for _, pattern in enumerate(self._route_patterns)
         ]
 
         matched_patterns = list(filter(None, matched_patterns))
@@ -45,65 +49,69 @@ class Router:
 
         matched_patterns_length = len(matched_patterns)
 
-        self._logger.debug("%s matching URL patterns found for path: '%s'", matched_patterns_length, path)
+        self._logger.debug(
+            "%s matching URL patterns found for path: '%s'",
+            matched_patterns_length,
+            path,
+        )
 
-        if matched_patterns_length > 1:
-            best_match = [
-                match for _, match in enumerate(matched_patterns)
-                if match and hasattr(self._routes[match.re.pattern], method)
-            ]
+        if matched_patterns_length == 1:
+            return matched_patterns[0]
 
-            best_match_count = len(best_match)
+        best_match = [
+            match
+            for _, match in enumerate(matched_patterns)
+            if match and hasattr(self._routes[match.re.pattern], method)
+        ]
 
-            # method required to serve this request was not implemented
-            if best_match_count == 0:
-                return None
+        best_match_count = len(best_match)
 
-            if best_match_count == 1:
-                return best_match[0]
+        # method required to serve this request was not implemented
+        if best_match_count == 0:
+            return None
 
-            best_pattern: re.Match = best_match[0]  # default best match
-            best_group_count = 0
+        if best_match_count == 1:
+            return best_match[0]
 
-            for _, best in enumerate(best_match):
-                re_pattern = best.re.pattern
-                exact_pattern = self._routes.get(re_pattern)
-                if exact_pattern:
-                    best_pattern = best
-                    break
+        best_pattern: re.Match = best_match[0]  # default best match
+        best_group_count = 0
 
-                groups_len = len(best.groups())
-                if groups_len > best_group_count:
-                    best_pattern = best
-                    best_group_count = groups_len
+        for _, best in enumerate(best_match):
+            re_pattern = best.re.pattern
+            exact_pattern = self._routes.get(re_pattern)
+            if exact_pattern:
+                best_pattern = best
+                break
 
-            self._logger.debug(
-                "URL pattern '%s' was best match for path: '%s'",
-                best_pattern.re.pattern, path,
-            )
-            return best_pattern
+            groups_len = len(best.groups())
+            if groups_len > best_group_count:
+                best_pattern = best
+                best_group_count = groups_len
 
-        return matched_patterns[0]
+        self._logger.debug(
+            "URL pattern '%s' was best match for path: '%s'",
+            best_pattern.re.pattern,
+            path,
+        )
+        return best_pattern
 
     def _prepare_request(self, middleware, request):
-        for _, middleware in enumerate(middleware):
-            if not middleware.run(request.path):
+        for _, instance in enumerate(middleware):
+            if not instance.run(request.path):
                 continue
 
-            middleware.before_request(request=request)
+            instance.before_request(request=request)
         return request
 
     def _prepare_response(self, middleware, request, response):
-        for _, middleware in enumerate(middleware):
-            if not middleware.run(request.path):
+        for _, instance in enumerate(middleware):
+            if not instance.run(request.path):
                 continue
-            middleware.before_response(response=response)
+            instance.before_response(response=response)
         return response
 
     def execute(
-            self,
-            event: Dict[str, Any],
-            context: Dict[str, Any]
+        self, event: Dict[str, Any], context: Dict[str, Any]
     ) -> Tuple[Optional[str], int, Dict[str, Any], str]:
         """
         This is where the resource calling and middleware execution _really_ happens.
@@ -116,7 +124,7 @@ class Router:
 
         re_match = self._get_re_match(path=path, method=method)
         if not re_match:
-            raise NotFound(f'{method.upper()} \'{path}\' not found!')
+            raise NotFound(f"{method.upper()} '{path}' not found!")
 
         resource_class = self._routes[re_match.re.pattern]
         resource_instance = resource_class()
@@ -132,9 +140,7 @@ class Router:
         response = resource_instance.dispatch(request=request, **kwargs)
         if not response:
             class_name = resource_instance.__class__.__name__
-            raise NoResponseError(
-                '%s did not return a response' % class_name,
-            )
+            raise NoResponseError(f"{class_name} did not return a response")
 
         # middleware that needs to run before response
         response = self._prepare_response(self._middleware_reversed, request, response)
@@ -148,12 +154,14 @@ class Router:
 
     def route(self, event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         try:
-            response, status_code, headers, content_type = self.execute(event=event, context=context)
+            response, status_code, headers, content_type = self.execute(
+                event=event, context=context
+            )
             return api_gateway_response(
                 status_code=status_code,
                 data=response,
                 content_type=content_type,
-                extra_headers=headers
+                extra_headers=headers,
             )
         except RuntimeError as exc:
             return self._exception_handler(exc)
