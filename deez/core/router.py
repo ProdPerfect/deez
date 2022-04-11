@@ -71,7 +71,9 @@ class Router:
             return None
 
         if best_match_count == 1:
-            return best_match[0]
+            match = best_match[0]
+            self._logger.debug("Exact URL match for path: '%s'", match.re.pattern)
+            return match
 
         best_pattern: re.Match = best_match[0]  # default best match
         best_group_count = 0
