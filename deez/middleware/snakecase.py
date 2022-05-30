@@ -17,7 +17,7 @@ def _camel_case_split(identifier: str) -> List[str]:
     return split_string
 
 
-@lru_cache(maxsize=100000)
+@lru_cache(maxsize=None)
 def _fixup_keys(key: str) -> str:
     """
     Turns camel-case into snake-case

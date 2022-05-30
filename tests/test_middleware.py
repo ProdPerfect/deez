@@ -33,7 +33,7 @@ class MiddlewareTestCase(unittest.TestCase):
             response,
             {
                 'isBase64Encoded': False, 'statusCode': 200,
-                'body': '{"statusCode": 200, "message": "hello world", "user": {"name": "Lemi", "age": 1000000}}',
+                'body': '{"statusCode":200,"message":"hello world","user":{"name":"Lemi","age":1000000}}',
                 'headers': {
                     'Content-Type': 'application/json',
                     'Access-Control-Allow-Origin': '*',

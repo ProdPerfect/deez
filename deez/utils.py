@@ -1,10 +1,10 @@
 import importlib
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Callable
 
 from deez.middleware import Middleware
 
 
-def import_resolver(module_path: str):
+def import_resolver(module_path: str) -> Callable:
     """
     Takes a string reference to a class and returns
     an actual Python class.

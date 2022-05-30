@@ -1,9 +1,9 @@
 import copy
-import json
 import os
 import unittest
 from unittest import mock
 
+from deez.contrib.serialization import json_dumps
 from deez.deez import Deez
 from deez.exceptions import MethodNotAllowed, NotFound
 from deez.urls import path
@@ -29,20 +29,20 @@ class RouterTestCase(unittest.TestCase):
         app = Deez()
         app.register_route(r'^/hello/world$', HelloWorldResource)
         response, status_code, _, _ = app.router.execute(event, {})
-        self.assertEqual(json.dumps({'message': 'hello world'}), response)
+        self.assertEqual(json_dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
 
     def test_can_route_correctly_with_str_path(self, *args, **kwargs):
         app = Deez()
         app.register_route(path('/hello/<str:customer_name>', GetByNameResource))
         response, status_code, _, _ = app.router.execute(event, {})
-        self.assertEqual(json.dumps({'message': 'ok', 'customer_name': 'world'}), response)
+        self.assertEqual(json_dumps({'message': 'ok', 'customer_name': 'world'}), response)
         self.assertEqual(status_code, 200)
 
         _event = copy.deepcopy(event)
         _event['path'] = '/hello/my-world'
         response, status_code, _, _ = app.router.execute(_event, {})
-        self.assertEqual(json.dumps({'message': 'ok', 'customer_name': 'my-world'}), response)
+        self.assertEqual(json_dumps({'message': 'ok', 'customer_name': 'my-world'}), response)
         self.assertEqual(status_code, 200)
 
     def test_can_route_correctly_with_int_path(self, *args, **kwargs):
@@ -51,7 +51,7 @@ class RouterTestCase(unittest.TestCase):
         app = Deez()
         app.register_route(path('/hello/<int:world>/', HelloWorldResource))
         response, status_code, _, _ = app.router.execute(_event, {})
-        self.assertEqual(json.dumps({'message': 'hello world'}), response)
+        self.assertEqual(json_dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
 
     def test_can_route_correctly_with_number_path(self, *args, **kwargs):
@@ -60,7 +60,7 @@ class RouterTestCase(unittest.TestCase):
         app = Deez()
         app.register_route(path('/hello/<number:world>/stacks', HelloWorldResource))
         response, status_code, _, _ = app.router.execute(_event, {})
-        self.assertEqual(json.dumps({'message': 'hello world'}), response)
+        self.assertEqual(json_dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
 
     def test_can_route_correctly_with_uuid_path(self, *args, **kwargs):
@@ -69,7 +69,7 @@ class RouterTestCase(unittest.TestCase):
         app = Deez()
         app.register_route(path('/hello/<uuid:world>', HelloWorldResource))
         response, status_code, _, _ = app.router.execute(_event, {})
-        self.assertEqual(json.dumps({'message': 'hello world'}), response)
+        self.assertEqual(json_dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
 
     def test_can_route_correctly_with_slug_path(self, *args, **kwargs):
@@ -78,14 +78,14 @@ class RouterTestCase(unittest.TestCase):
         app = Deez()
         app.register_route(path('/hello/<slug:world>', HelloWorldResource))
         response, status_code, _, _ = app.router.execute(_event, {})
-        self.assertEqual(json.dumps({'message': 'hello world'}), response)
+        self.assertEqual(json_dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
 
     def test_respects_response_status_code(self, *args, **kwargs):
         app = Deez()
         app.register_route(r'^/hello/world$', HelloWorldResource2)
         response, status_code, _, _ = app.router.execute(event, {})
-        self.assertEqual(json.dumps({'message': 'hello world 2'}), response)
+        self.assertEqual(json_dumps({'message': 'hello world 2'}), response)
         self.assertEqual(status_code, 201)
 
     def test_router_selects_most_specific_route(self):
@@ -93,7 +93,7 @@ class RouterTestCase(unittest.TestCase):
         self.app.register_route(r'^/hello/world/1000/1000', HelloWorldResource)
         self.app.register_route(r'^/hello/world/(?P<id>)\d{4}/(?P<pid>)\d{4}$', HelloWorldResource3)
         response, status_code, _, _ = self.router.execute(event, {})
-        self.assertEqual(json.dumps({'message': 'hello world'}), response)
+        self.assertEqual(json_dumps({'message': 'hello world'}), response)
         self.assertEqual(status_code, 200)
 
     def test_user_provided_headers_are_returned_in_response(self):

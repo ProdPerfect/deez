@@ -1,12 +1,14 @@
 import re
 from functools import lru_cache
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, List
 
 from deez.core.gateway import api_gateway_response
 from deez.exceptions import (
     NoResponseError, NotFound, )
 from deez.logger import get_logger
+from deez.middleware import Middleware
 from deez.request import Request
+from deez.response import Response
 
 
 class Router:
@@ -15,13 +17,15 @@ class Router:
     and executing middleware -- it's the core of Deez.
     """
 
-    def __init__(self, *,
-                 routes,
-                 route_patterns,
-                 settings,
-                 middleware,
-                 middleware_reversed,
-                 exception_handler):
+    def __init__(
+            self, *,
+            routes,
+            route_patterns,
+            settings,
+            middleware,
+            middleware_reversed,
+            exception_handler,
+    ):
         self._routes = routes
         self._settings = settings
         self._middleware = middleware
@@ -30,7 +34,7 @@ class Router:
         self._exception_handler = exception_handler
         self._logger = get_logger('deez.router')
 
-    @lru_cache(maxsize=10000)
+    @lru_cache(maxsize=None)
     def _get_re_match(self, path: str, method: str):
         self._logger.debug("finding URL pattern match for path: '%s'", path)
         matched_patterns = [
@@ -85,19 +89,16 @@ class Router:
 
         return matched_patterns[0]
 
-    def _prepare_request(self, middleware, request):
-        for _, middleware in enumerate(middleware):
-            if not middleware.run(request.path):
-                continue
-
-            middleware.before_request(request=request)
+    def _prepare_request(self, middleware: List[Middleware], request: Request):
+        for mw in middleware:
+            if hasattr(mw, 'before_request') and mw.run(request.path):
+                mw.before_request(request=request)
         return request
 
-    def _prepare_response(self, middleware, request, response):
-        for _, middleware in enumerate(middleware):
-            if not middleware.run(request.path):
-                continue
-            middleware.before_response(response=response)
+    def _prepare_response(self, middleware: List[Middleware], request: Request, response: Response):
+        for mw in middleware:
+            if hasattr(mw, 'before_response') and mw.run(request.path):
+                mw.before_response(response=response)
         return response
 
     def execute(
@@ -131,9 +132,8 @@ class Router:
 
         response = resource_instance.dispatch(request=request, **kwargs)
         if not response:
-            class_name = resource_instance.__class__.__name__
             raise NoResponseError(
-                '%s did not return a response' % class_name,
+                '%s did not return a response' % resource_instance,
             )
 
         # middleware that needs to run before response
