@@ -1,11 +1,13 @@
 import logging
-from json import JSONDecodeError
 from typing import Any, Dict, Optional, Union
-
-from ujson import JSONDecodeError as UJSONDecodeError  # type: ignore
 
 from deez.contrib.serialization import json_loads
 from deez.helpers import method_proxy
+
+try:
+    from ujson import JSONDecodeError
+except ImportError:
+    from json import JSONDecodeError
 
 _logger = logging.getLogger(__file__)
 
@@ -34,7 +36,7 @@ class Post:
         if isinstance(body, (str, bytes)):
             try:
                 self.data = json_loads(body)
-            except (JSONDecodeError, UJSONDecodeError):
+            except JSONDecodeError:
                 _logger.warning(
                     "unable to decode `POST#data`. "
                     "decoding must be handled manually and is "
