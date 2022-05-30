@@ -3,6 +3,7 @@ import os
 from typing import Dict, Any
 
 from deez.conf import default_settings
+from deez.core.signals import settings_configured
 from deez.helpers import method_proxy
 
 
@@ -43,6 +44,8 @@ class Setting:
             self._set_user_settings()
             # only after `configured` is set to true can the settings object be used
             self._configured = True
+
+        settings_configured.send(self)
 
     def __getattr__(self, item):
         if not self._configured:

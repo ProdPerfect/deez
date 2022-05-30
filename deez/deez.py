@@ -1,4 +1,5 @@
 import re
+from logging import Logger
 from typing import Type, Union, List, Dict, Pattern, Any
 
 from deez.conf import Setting
@@ -20,20 +21,24 @@ class Deez:
     def __init__(self) -> None:
         self.router: Router
         self.routes: Dict[str, Type[Resource]] = {}
+        self._logger: Logger
         self.settings: Setting
         self.middleware: List[Middleware] = []
         self.route_patterns: List[Pattern] = []
         self.middleware_reversed: List[Middleware] = []
-        self._logger = get_logger('deez')
+
         self._setup()
 
     def _setup(self) -> None:
+        from deez.conf import settings
+        self.settings = settings
+        self.settings.configure()
+
+        self._logger = get_logger('deez')
+
         # notify subscribers that setup has started
         application_setup_started.send(self)
 
-        from deez.conf import settings
-
-        self.settings = settings
         if hasattr(settings, 'MIDDLEWARE'):
             self.middleware = middleware_resolver(settings.MIDDLEWARE)
             self.middleware_reversed = list(reversed(self.middleware))

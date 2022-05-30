@@ -1,5 +1,6 @@
-from blinker import signal  # type: ignore
+from blinker import Signal  # type: ignore
 
-application_setup_started = signal('application-setup-started')
-application_setup_finished = signal('application-setup-finished')
-application_routes_registered = signal('application-routes-registered')
+application_setup_started = Signal('application-setup-started')
+application_setup_finished = Signal('application-setup-finished')
+application_routes_registered = Signal('application-routes-registered')
+settings_configured = Signal('settings-configured')
