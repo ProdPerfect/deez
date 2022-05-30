@@ -5,7 +5,7 @@ from deez.contrib.serialization import json_loads
 from deez.helpers import method_proxy
 
 try:
-    from ujson import JSONDecodeError
+    from ujson import JSONDecodeError  # type: ignore
 except ImportError:
     from json import JSONDecodeError
 
