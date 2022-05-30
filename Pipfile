@@ -13,7 +13,9 @@ rope = "*"
 autopep8 = "*"
 flake8 = "*"
 typing_extensions = "*"
+types-ujson = "*"
 
 [packages]
 blinker = "==1.4"
 ujson = "*"
+types-ujson = "*"

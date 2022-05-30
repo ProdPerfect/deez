@@ -1,2 +1,4 @@
+from typing import List
+
 DEBUG: bool = True
-MIDDLEWARE = []
+MIDDLEWARE: List[str] = []

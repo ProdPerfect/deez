@@ -1,12 +1,12 @@
-from typing import AnyStr, Union, List, Any, Dict
+from typing import Any
 
 try:
     import ujson as json
 except ImportError:
-    import json
+    import json  # type: ignore
 
 
-def json_loads(s: AnyStr) -> Union[List[Any], Dict[str, Any]]:
+def json_loads(s: Any) -> Any:
     """
 
     :param s: JSON string to decode

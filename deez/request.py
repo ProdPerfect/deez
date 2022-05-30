@@ -2,7 +2,7 @@ import logging
 from json import JSONDecodeError
 from typing import Any, Dict, Optional, Union
 
-from ujson import JSONDecodeError as UJSONDecodeError
+from ujson import JSONDecodeError as UJSONDecodeError  # type: ignore
 
 from deez.contrib.serialization import json_loads
 from deez.helpers import method_proxy
@@ -14,8 +14,8 @@ class Header:
     def __init__(self, data: Dict[str, str]) -> None:
         self.data = data
 
-    def get(self, key: str, default: Any = None) -> Optional[str]:
-        return self.data.get(key, default=default)
+    def get(self, key: str) -> Optional[str]:
+        return self.data.get(key)
 
 
 class Post:
@@ -24,7 +24,7 @@ class Post:
         self.content = body
         self._loads(body)
 
-    def _loads(self, body: Union[Dict, bytes, str]) -> None:
+    def _loads(self, body: Union[bytes, str]) -> None:
         if isinstance(body, dict):
             self.data = body
 
@@ -41,16 +41,16 @@ class Post:
                     "available in POST#content."
                 )
 
-    def get(self, key: str, default: Any = None) -> Optional[Any]:
-        return self.data.get(key, default=default)
+    def get(self, key: str) -> Optional[Any]:
+        return self.data.get(key)
 
 
 class Get:
     def __init__(self, params: Dict[str, Any]) -> None:
         self.data = params
 
-    def get(self, key: str, default: Any = None) -> Optional[Any]:
-        return self.data.get(key, default=default)
+    def get(self, key: str) -> Optional[Any]:
+        return self.data.get(key)
 
 
 class Request:
