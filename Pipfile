@@ -16,3 +16,4 @@ typing_extensions = "*"
 
 [packages]
 blinker = "==1.4"
+ujson = "*"
