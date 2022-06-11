@@ -39,7 +39,7 @@ class Router:
         self._logger.debug("finding URL pattern match for path: '%s'", path)
         matched_patterns = [
             pattern.search(path)
-            for _, pattern in enumerate(self._route_patterns)
+            for pattern in self._route_patterns
         ]
 
         matched_patterns = list(filter(None, matched_patterns))
@@ -53,7 +53,7 @@ class Router:
 
         if matched_patterns_length > 1:
             best_match = [
-                match for _, match in enumerate(matched_patterns)
+                match for match in matched_patterns
                 if match and hasattr(self._routes[match.re.pattern], method)
             ]
 
@@ -69,7 +69,7 @@ class Router:
             best_pattern: re.Match = best_match[0]  # default best match
             best_group_count = 0
 
-            for _, best in enumerate(best_match):
+            for best in best_match:
                 re_pattern = best.re.pattern
                 exact_pattern = self._routes.get(re_pattern)
                 if exact_pattern:
@@ -109,7 +109,7 @@ class Router:
         """
         This is where the resource calling and middleware execution _really_ happens.
         Probably deserves a much longer comment, but I feel like for now it's pretty
-        self explanatory.
+        self-explanatory.
         """
         request = Request(event=event, context=context)
         path = request.path
@@ -125,7 +125,8 @@ class Router:
         # stores url arguments on the request object so they can
         # be used in places like middleware.
         kwargs = re_match.groupdict()
-        request.kwargs = kwargs
+        setattr(request, 'kwargs', kwargs)  # TODO: deprecate and use `resource.kwargs` instead
+        setattr(resource_instance, 'kwargs', kwargs)
 
         # middleware that needs to run before calling the resource
         request = self._prepare_request(self._middleware, request)
