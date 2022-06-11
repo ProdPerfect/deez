@@ -1,6 +1,6 @@
 import importlib
 import os
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Union
 
 from deez.conf import default_settings
 from deez.core.signals import settings_configured
@@ -20,7 +20,7 @@ def import_settings_module():
 
 class Setting:
     DEBUG: bool
-    MIDDLEWARE: List[str]
+    MIDDLEWARE: List[Union[str, Dict[str, str]]]
     EXCEPTION_HANDLER: str
     ACCESS_CONTROL_MAX_AGE: int
     ACCESS_CONTROL_ALLOW_ORIGIN: str
