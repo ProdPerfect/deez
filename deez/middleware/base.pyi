@@ -7,6 +7,7 @@ class Middleware:
     """
     base class for implementing middleware
     """
+    path_regex: Optional[Pattern]
 
     def __init__(self, path_regex: Optional[Pattern] = None) -> None: ...
     def run(self, path: str) -> bool: ...
