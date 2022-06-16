@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Dict, Optional, Union, List
 
-from deez.contrib.serialization import json_loads, json_dumps
+from deez.contrib.serialization import json_loads
 from deez.helpers import method_proxy
 
 try:
