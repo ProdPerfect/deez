@@ -9,7 +9,7 @@ from deez.middleware import Middleware
 from deez.resource import Resource
 from deez.response import JsonResponse
 from deez.urls import path
-from tests.mock_event import event_version_1
+from tests.mock_event import event_v1
 
 
 class HelloWorldResource(Resource):
@@ -28,7 +28,7 @@ class MiddlewareTestCase(unittest.TestCase):
     def test_modifies_response(self):
         app = Deez()
         app.register_route(path('/hello/world', HelloWorldResource))
-        response = app.router.route(event_version_1, {})
+        response = app.router.route(event_v1, {})
         self.assertEqual(
             response,
             {
