@@ -66,7 +66,10 @@ class Request:
         self.cookies: List[str] = []
         self.aws_event = event
         self.aws_context = context
-        self.version = self.aws_event['version']
+        self.version = self.aws_event.get(
+            'version',
+            '1.0'
+        )  # non-http api events don't have this
         self.kwargs: Dict[str, Any] = {}
 
         self._build()
