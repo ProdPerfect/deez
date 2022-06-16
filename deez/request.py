@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, List
 
 from deez.contrib.serialization import json_loads
 from deez.helpers import method_proxy
@@ -60,24 +60,35 @@ class Request:
             self,
             event: Dict[str, Any],
             context: Dict[str, Any],
-    ):
+    ) -> None:
+        self.path: str
+        self.method: str
+        self.cookies: List[str] = []
         self.aws_event = event
         self.aws_context = context
-
-        self.GET = Get(event.get('queryStringParameters', {}))
-        self.POST = Post(event.get('body', {}))
-        self.HEADERS = Header(event.get('headers', {}))
+        self.version = self.aws_event.get(
+            'version',
+            '1.0'
+        )  # non-http api events don't have this
         self.kwargs: Dict[str, Any] = {}
 
-    @property
-    def path(self) -> str:
-        return self.aws_event['path']
+        self._build()
 
-    @property
-    def method(self) -> str:
-        return self.aws_event['httpMethod']
+    def _build(self) -> None:
+        self.GET = Get(self.aws_event.get('queryStringParameters', {}))
+        self.POST = Post(self.aws_event.get('body', {}))
+        self.HEADERS = Header(self.aws_event.get('headers', {}))
 
-    def __str__(self):
+        if self.version == '1.0':
+            self.path = self.aws_event['path']
+            self.method = self.aws_event['httpMethod']
+        elif self.version == '2.0':
+            context = self.aws_event['requestContext']
+            self.path = context['http']['path']
+            self.method = context['http']['method']
+            self.cookies = self.aws_event.get('cookies', [])
+
+    def __str__(self) -> str:
         return '%s %s' % (self.method, self.path)
 
     def __getattr__(self, item):
