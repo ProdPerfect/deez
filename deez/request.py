@@ -60,7 +60,7 @@ class Request:
             self,
             event: Dict[str, Any],
             context: Dict[str, Any],
-    ):
+    ) -> None:
         self.path: str
         self.method: str
         self.cookies: List[str] = []
@@ -71,23 +71,21 @@ class Request:
 
         self._build()
 
-    def _build(self, ):
+    def _build(self) -> None:
+        self.GET = Get(self.aws_event.get('queryStringParameters', {}))
+        self.POST = Post(self.aws_event.get('body', {}))
+        self.HEADERS = Header(self.aws_event.get('headers', {}))
+
         if self.version == '1.0':
             self.path = self.aws_event['path']
             self.method = self.aws_event['httpMethod']
-            self.GET = Get(self.aws_event.get('queryStringParameters', {}))
-            self.POST = Post(self.aws_event.get('body', {}))
-            self.HEADERS = Header(self.aws_event.get('headers', {}))
         elif self.version == '2.0':
             context = self.aws_event['requestContext']
             self.path = context['http']['path']
             self.method = context['http']['method']
             self.cookies = self.aws_event.get('cookies', [])
-            self.GET = Get(self.aws_event.get('queryStringParameters', {}))
-            self.POST = Post(self.aws_event.get('body', {}))
-            self.HEADERS = Header(self.aws_event.get('headers', {}))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '%s %s' % (self.method, self.path)
 
     def __getattr__(self, item):
