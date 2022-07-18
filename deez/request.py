@@ -27,21 +27,10 @@ class Post:
         self._loads(body)
 
     def _loads(self, body: Union[bytes, str]) -> None:
-        if isinstance(body, dict):
-            self.data = body
-
-        # If we can't decode the payload automatically
-        # it is up to the developer to handle dealing with
-        # the content of the request.
-        if isinstance(body, (str, bytes)):
-            try:
-                self.data = json_loads(body)
-            except JSONDecodeError:
-                _logger.warning(
-                    "unable to decode `POST#data`. "
-                    "decoding must be handled manually and is "
-                    "available in POST#content."
-                )
+        try:
+            self.data = json_loads(body)
+        except JSONDecodeError:
+            _logger.warning("unable to decode `POST#data`. ")
 
     def get(self, key: str) -> Optional[Any]:
         return self.data.get(key)
