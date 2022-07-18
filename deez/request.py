@@ -7,7 +7,7 @@ from deez.helpers import method_proxy
 try:
     from ujson import JSONDecodeError  # type: ignore
 except ImportError:
-    from json import JSONDecodeError
+    from json import JSONDecodeError  # type: ignore
 
 _logger = logging.getLogger(__file__)
 
