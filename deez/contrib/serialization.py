@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Union, List, Dict, AnyStr
 
 try:
     import ujson as json
@@ -6,7 +6,7 @@ except ImportError:
     import json  # type: ignore
 
 
-def json_loads(s: Any) -> Any:
+def json_loads(s: AnyStr) -> Union[List, Dict, str, int]:
     """
 
     :param s: JSON string to decode
@@ -17,5 +17,5 @@ def json_loads(s: Any) -> Any:
     return json.loads(s)
 
 
-def json_dumps(obj: Any) -> str:
+def json_dumps(obj: Union[List, Dict, str, int]) -> str:
     return json.dumps(obj)

@@ -14,7 +14,7 @@ from deez.logger import get_logger
 from deez.middleware import Middleware
 from deez.resource import Resource
 from deez.urls import Path
-from deez.utils import import_resolver, middleware_resolver
+from deez.utils import import_string, middleware_resolver
 
 
 class Deez:
@@ -49,7 +49,7 @@ class Deez:
             middleware=self.middleware,
             route_patterns=self.route_patterns,
             middleware_reversed=self.middleware_reversed,
-            exception_handler=import_resolver(settings.EXCEPTION_HANDLER)
+            exception_handler=import_string(settings.EXCEPTION_HANDLER)
         )
 
         # notify subscribers that setup has finished

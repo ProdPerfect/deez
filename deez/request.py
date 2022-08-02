@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, Optional, Union, List
+from typing import Any, Dict, List, Union, AnyStr
 
 from deez.contrib.serialization import json_loads
 from deez.helpers import method_proxy
@@ -10,38 +10,30 @@ except ImportError:
     from json import JSONDecodeError  # type: ignore
 
 _logger = logging.getLogger(__file__)
+_methods_with_bodies = {'POST', 'PATCH', 'PUT'}
 
 
 class Header:
     def __init__(self, data: Dict[str, str]) -> None:
         self.data = data
 
-    def get(self, key: str) -> Optional[str]:
-        return self.data.get(key)
-
 
 class Post:
-    def __init__(self, body: str) -> None:
-        self.data: Dict[str, Any] = {}
+    def __init__(self, body: Union[Dict, List]) -> None:
+        self.data: Union[Dict, List, str, int, float, None] = None
         self.content = body
         self._loads(body)
 
-    def _loads(self, body: Union[bytes, str]) -> None:
-        try:
+    def _loads(self, body: Union[List, Dict, AnyStr]) -> None:
+        if isinstance(body, (list, dict)):
+            self.data = body
+        else:
             self.data = json_loads(body)
-        except JSONDecodeError:
-            _logger.warning("unable to decode `POST#data`. ")
-
-    def get(self, key: str) -> Optional[Any]:
-        return self.data.get(key)
 
 
 class Get:
     def __init__(self, params: Dict[str, Any]) -> None:
-        self.data = params
-
-    def get(self, key: str) -> Optional[Any]:
-        return self.data.get(key)
+        self.params = params
 
 
 class Request:
@@ -64,10 +56,6 @@ class Request:
         self._build()
 
     def _build(self) -> None:
-        self.GET = Get(self.aws_event.get('queryStringParameters', {}))
-        self.POST = Post(self.aws_event.get('body', {}))
-        self.HEADERS = Header(self.aws_event.get('headers', {}))
-
         if self.version == '1.0':
             self.path = self.aws_event['path']
             self.method = self.aws_event['httpMethod']
@@ -76,6 +64,12 @@ class Request:
             self.path = context['http']['path']
             self.method = context['http']['method']
             self.cookies = self.aws_event.get('cookies', [])
+
+        self.GET = Get(self.aws_event.get('queryStringParameters', {}))
+        self.HEADERS = Header(self.aws_event.get('headers', {}))
+
+        if self.method in _methods_with_bodies:
+            self.POST = Post(self.aws_event.get('body', {}))
 
     def __str__(self) -> str:
         return '%s %s' % (self.method, self.path)

@@ -4,7 +4,7 @@ from typing import List, Union, Dict, Callable
 from deez.middleware import Middleware
 
 
-def import_resolver(module_path: str) -> Callable:
+def import_string(module_path: str) -> Callable:
     """
     Takes a string reference to a class and returns
     an actual Python class.
@@ -34,9 +34,9 @@ def middleware_resolver(
         instance: Middleware
         assert isinstance(m, (str, dict)), unsupported_type % type(m)
         if isinstance(m, str):
-            instance = import_resolver(m)()
+            instance = import_string(m)()
         else:
-            instance = import_resolver(m['middleware'])(path_regex=m['scope'])
+            instance = import_string(m['middleware'])(path_regex=m['scope'])
 
         # for the time being, we're being strict about what actually is considered
         # a valid middleware class.
