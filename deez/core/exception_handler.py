@@ -21,7 +21,8 @@ CLIENT_EXCEPTION_STATUS_CODES: Dict[str, int] = {
 CLIENT_EXCEPTION_NAMES = set(CLIENT_EXCEPTION_STATUS_CODES.keys())
 
 
-def handler(exc, *args, **kwargs):
+def handler(exc: Exception):
+    """generic exception handler"""
     exc_class = exc.__class__.__name__
     if isinstance(exc, DeezError) and exc_class in CLIENT_EXCEPTION_NAMES:
         code = CLIENT_EXCEPTION_STATUS_CODES.get(exc_class, 500)
