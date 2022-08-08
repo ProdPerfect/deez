@@ -1,10 +1,10 @@
 import importlib
-from typing import List, Union, Dict, Callable
+from typing import Any, List, Union, Dict
 
 from deez.middleware import Middleware
 
 
-def import_string(module_path: str) -> Callable:
+def import_string(module_path: str) -> Any:
     """
     Takes a string reference to a class and returns
     an actual Python class.
@@ -29,7 +29,7 @@ def middleware_resolver(
     middleware instances to be used in Deez Router.
     """
     unsupported_type = "unsupported type %s used as middleware reference"
-    middlewares = []
+    middlewares: List[Middleware] = []
     for klass in middleware_classes:
         instance: Middleware
         assert isinstance(klass, (str, dict)), unsupported_type % type(klass)

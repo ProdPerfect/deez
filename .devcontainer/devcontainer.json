@@ -20,7 +20,8 @@
 				],
 				"python.analysis.autoImportCompletions": true,
 				"python.terminal.activateEnvInCurrentTerminal": true,
-				"python.terminal.activateEnvironment": true
+				"python.terminal.activateEnvironment": true,
+				"python.analysis.typeCheckingMode": "strict"
 			},
 			"extensions": [
 				"ms-python.python",
