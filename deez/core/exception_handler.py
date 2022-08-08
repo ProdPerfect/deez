@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Dict
+from typing import Any, Dict
 
 from deez.core.gateway import api_gateway_response
 from deez.exceptions import DeezError
@@ -21,7 +21,7 @@ CLIENT_EXCEPTION_STATUS_CODES: Dict[str, int] = {
 CLIENT_EXCEPTION_NAMES = set(CLIENT_EXCEPTION_STATUS_CODES.keys())
 
 
-def handler(exc: Exception):
+def handler(exc: Exception) -> Dict[str, Any]:
     """generic exception handler"""
     exc_class = exc.__class__.__name__
     if isinstance(exc, DeezError) and exc_class in CLIENT_EXCEPTION_NAMES:

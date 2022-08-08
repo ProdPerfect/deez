@@ -1,6 +1,6 @@
 import re
 from functools import lru_cache
-from typing import Any, Dict, Optional, Tuple, List
+from typing import Any, Dict, Match, Optional, Tuple, List, Union
 
 from deez.core.gateway import api_gateway_response
 from deez.exceptions import (
@@ -25,7 +25,7 @@ class Router:
             middleware,
             middleware_reversed,
             exception_handler,
-    ):
+    ) -> None:
         self._routes = routes
         self._settings = settings
         self._middleware = middleware
@@ -34,8 +34,8 @@ class Router:
         self._exception_handler = exception_handler
         self._logger = get_logger('deez.router')
 
-    @lru_cache(maxsize=None)
-    def _get_re_match(self, path: str, method: str):
+    @lru_cache(maxsize=1000)
+    def _get_re_match(self, path: str, method: str) -> Union[None, Match]:
         self._logger.debug("finding URL pattern match for path: '%s'", path)
         matched_patterns = [
             pattern.search(path)
@@ -89,13 +89,13 @@ class Router:
 
         return matched_patterns[0]
 
-    def _prepare_request(self, middleware: List[Middleware], request: Request):
+    def _prepare_request(self, middleware: List[Middleware], request: Request) -> Request:
         for mw in middleware:
             if hasattr(mw, 'before_request') and mw.run(request.path):
                 mw.before_request(request=request)
         return request
 
-    def _prepare_response(self, middleware: List[Middleware], request: Request, response: Response):
+    def _prepare_response(self, middleware: List[Middleware], request: Request, response: Response) -> Response:
         for mw in middleware:
             if hasattr(mw, 'before_response') and mw.run(request.path):
                 mw.before_response(response=response)
@@ -133,9 +133,7 @@ class Router:
 
         response = resource_instance.dispatch(request=request, **kwargs)
         if not response:
-            raise NoResponseError(
-                '%s did not return a response' % resource_instance,
-            )
+            raise NoResponseError(f'{resource_instance} did not return a response')
 
         # middleware that needs to run before response
         response = self._prepare_response(self._middleware_reversed, request, response)
@@ -148,6 +146,7 @@ class Router:
         )
 
     def route(self, event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+        """entry point into router"""
         try:
             response, status_code, headers, content_type = self.execute(event=event, context=context)
             return api_gateway_response(

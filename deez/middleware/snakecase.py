@@ -1,8 +1,9 @@
 from functools import lru_cache
-from typing import List
+from typing import Dict, List
 
 from deez.conf import settings
 from deez.middleware.base import Middleware
+from deez.request import Request
 
 
 # https://stackoverflow.com/a/29916095
@@ -26,7 +27,7 @@ def _fixup_keys(key: str) -> str:
     return '_'.join(_camel_case_split(key)).lower()
 
 
-def _recursively_fixup(d):
+def _recursively_fixup(d) -> Dict[str, str]:
     new = {}
     for k, v in d.items():
         if isinstance(v, dict):
@@ -40,10 +41,11 @@ class SnakeCaseMiddleware(Middleware):
     convert camelcase keys to snake case
     """
 
-    def before_request(self, request):
-        if request.GET.data:
-            data = request.GET.data
-            request.GET.data = _recursively_fixup(data)
+    def before_request(self, request) -> Request:
+        """converts camelcase to snakecase"""
+        if request.GET.params:
+            data = request.GET.params
+            request.GET.params = _recursively_fixup(data)
 
         if request.POST.data:
             data = request.POST.data
