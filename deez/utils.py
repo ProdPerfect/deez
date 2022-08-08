@@ -18,7 +18,7 @@ def import_string(module_path: str) -> Callable:
     return getattr(module, attr)
 
 
-_invalid_middleware = "middleware %s is not a subclass of deez.middleware.Middleware"
+_INVALID_MIDDLEWARE_MESSAGE = "middleware %s is not a subclass of deez.middleware.Middleware"
 
 
 def middleware_resolver(
@@ -30,17 +30,17 @@ def middleware_resolver(
     """
     unsupported_type = "unsupported type %s used as middleware reference"
     middlewares = []
-    for m in middleware_classes:
+    for klass in middleware_classes:
         instance: Middleware
-        assert isinstance(m, (str, dict)), unsupported_type % type(m)
-        if isinstance(m, str):
-            instance = import_string(m)()
+        assert isinstance(klass, (str, dict)), unsupported_type % type(klass)
+        if isinstance(klass, str):
+            instance = import_string(klass)()
         else:
-            instance = import_string(m['middleware'])(path_regex=m['scope'])
+            instance = import_string(klass['middleware'])(path_regex=klass['scope'])
 
         # for the time being, we're being strict about what actually is considered
         # a valid middleware class.
-        assert isinstance(instance, Middleware), _invalid_middleware % instance.__class__.__name__
+        assert isinstance(instance, Middleware), _INVALID_MIDDLEWARE_MESSAGE % instance.__class__.__name__
 
         middlewares.append(instance)
 
