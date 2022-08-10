@@ -34,7 +34,8 @@
 	"forwardPorts": [
 		8080
 	],
-	"postCreateCommand": "pipenv install --dev",
+	"onCreateCommand": "pipenv install --dev",
+	"waitFor": "onCreateCommand",
 	"remoteUser": "vscode",
 	"features": {
 		"github-cli": "latest"
