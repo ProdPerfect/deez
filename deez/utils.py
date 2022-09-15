@@ -18,7 +18,7 @@ def import_string(module_path: str) -> Any:
     return getattr(module, attr)
 
 
-_INVALID_MIDDLEWARE_MESSAGE = "middleware %s is not a subclass of deez.middleware.Middleware"
+_INVALID_MIDDLEWARE_MESSAGE = "%s is not a subclass of deez.middleware.Middleware"
 
 
 def middleware_resolver(
@@ -28,7 +28,7 @@ def middleware_resolver(
     Iteratively resolves middleware classes and returns a list of
     middleware instances to be used in Deez Router.
     """
-    unsupported_type = "unsupported type %s used as middleware reference"
+    unsupported_type = "middleware references must be of type string or dict, not %s"
     middlewares: List[Middleware] = []
     for klass in middleware_classes:
         instance: Middleware

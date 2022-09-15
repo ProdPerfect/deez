@@ -50,8 +50,7 @@ class Request:
         self.version = self.aws_event.get(
             'version',
             '1.0'
-        )  # non-http api events don't have this
-        self.kwargs: Dict[str, Any] = {}
+        )  # non-http api events don't provide version information
 
         self._build()
 

@@ -25,7 +25,7 @@ def handler(exc: Exception) -> Dict[str, Any]:
     """generic exception handler"""
     exc_class = exc.__class__.__name__
     if isinstance(exc, DeezError) and exc_class in CLIENT_EXCEPTION_NAMES:
-        code = CLIENT_EXCEPTION_STATUS_CODES.get(exc_class, 500)
+        code = CLIENT_EXCEPTION_STATUS_CODES[exc_class]
         return api_gateway_response(
             data=json.dumps({'message': exc.args[0]}),
             status_code=code,
