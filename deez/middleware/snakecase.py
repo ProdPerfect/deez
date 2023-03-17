@@ -12,7 +12,7 @@ def _camel_case_split(identifier: str) -> List[str]:
     split_string = []
     previous = 0
     for match in matches:
-        split_string.append(identifier[previous:match.start()])
+        split_string.append(identifier[previous : match.start()])
         previous = match.start()
     split_string.append(identifier[previous:])
     return split_string
@@ -24,7 +24,7 @@ def _fixup_keys(key: str) -> str:
     Turns camel-case into snake-case
     For example: queryStringParameters -> query_string_parameters
     """
-    return '_'.join(_camel_case_split(key)).lower()
+    return "_".join(_camel_case_split(key)).lower()
 
 
 def _recursively_fixup(d) -> Dict[str, str]:

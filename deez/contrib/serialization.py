@@ -1,12 +1,16 @@
-from typing import Union, List, Dict, AnyStr
+from typing import Any, AnyStr
 
 try:
-    import ujson as json
+    # prefer orjson over ujson if both are available
+    import orjson as json
 except ImportError:
-    import json  # type: ignore
+    try:
+        import ujson as json
+    except ImportError:
+        import json
 
 
-def json_loads(s: AnyStr) -> Union[List, Dict, str, int]:
+def json_loads(s: AnyStr) -> Any:
     """
 
     :param s: JSON string to decode
@@ -17,5 +21,5 @@ def json_loads(s: AnyStr) -> Union[List, Dict, str, int]:
     return json.loads(s)
 
 
-def json_dumps(obj: Union[List, Dict, str, int]) -> str:
+def json_dumps(obj: Any) -> Any:
     return json.dumps(obj)

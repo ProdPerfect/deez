@@ -6,10 +6,7 @@ from deez.urls.parsers import pattern_replacer
 
 class Path:
     def __init__(
-            self,
-            regex: str,
-            resource: Type[Resource],
-            raw_url: Optional[str] = None
+        self, regex: str, resource: Type[Resource], raw_url: Optional[str] = None
     ):
         self.regex = regex
         self.raw_url = raw_url
@@ -21,4 +18,4 @@ def path(url: str, resource: Type[Resource]) -> Path:
     return Path(regex, resource, raw_url=url)
 
 
-__all__ = ['Path', 'path']
+__all__ = ["Path", "path"]

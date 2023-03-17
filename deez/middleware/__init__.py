@@ -1,3 +1,3 @@
 from .base import Middleware
 
-__all__ = ['Middleware']
+__all__ = ["Middleware"]
