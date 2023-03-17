@@ -8,7 +8,7 @@ from deez.helpers import method_proxy
 
 
 def import_settings_module():
-    _settings_module = os.getenv('PROJECT_SETTINGS_MODULE')
+    _settings_module = os.getenv("PROJECT_SETTINGS_MODULE")
     assert _settings_module is not None, (
         "You must set PROJECT_SETTINGS_MODULE "
         "as an environment variable with a path to "
@@ -62,7 +62,6 @@ class Setting:
         return method_proxy(self, item)
 
     def extend(self, *, configurations: Dict[str, Any]) -> None:
-        """Note: experimental!!
-        """
+        """Note: experimental!!"""
         for k, v in configurations.items():
             setattr(self, k, v)

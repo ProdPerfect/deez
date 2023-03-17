@@ -8,27 +8,32 @@ class MethodNotImplementedResource(Resource):
 
 class HelloWorldResource(Resource):
     def get(self, request, **kwargs):
-        return JsonResponse(data={'message': 'hello world'})
+        return JsonResponse(data={"message": "hello world"})
 
 
 class HelloWorldResource2(Resource):
     def get(self, request, *args, **kwargs):
-        return JsonResponse(data={'message': 'hello world 2'}, status_code=201)
+        return JsonResponse(data={"message": "hello world 2"}, status_code=201)
 
 
 class HelloWorldResource3(HelloWorldResource):
     def get(self, request, **kwargs):
-        return JsonResponse(data={'message': 'hello world 3'})
+        return JsonResponse(data={"message": "hello world 3"})
 
 
 class HelloWorldResource4(HelloWorldResource):
     def get(self, request, **kwargs):
-        return JsonResponse(data={'message': 'hello world 3'}, headers={'X-Lemi-Gang': 'Yeet'})
+        return JsonResponse(
+            data={"message": "hello world 3"}, headers={"X-Lemi-Gang": "Yeet"}
+        )
 
 
 class GetByNameResource(Resource):
     def get(self, request, customer_name):
-        return JsonResponse(data={'message': 'ok', 'customer_name': customer_name}, headers={'X-Lemi-Gang': 'Yeet'})
+        return JsonResponse(
+            data={"message": "ok", "customer_name": customer_name},
+            headers={"X-Lemi-Gang": "Yeet"},
+        )
 
 
 class NotContentResource(HelloWorldResource):
@@ -38,4 +43,4 @@ class NotContentResource(HelloWorldResource):
 
 class RedirectResource(Resource):
     def get(self, request, **kwargs):
-        return HttpRedirectResponse('/redirect')
+        return HttpRedirectResponse("/redirect")

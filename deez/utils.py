@@ -11,9 +11,9 @@ def import_string(module_path: str) -> Any:
 
     Example: "deez.middleware.Middleware"
     """
-    split_path = module_path.split('.')
+    split_path = module_path.split(".")
     attr = split_path[-1]
-    package = '.'.join(split_path[:-1])
+    package = ".".join(split_path[:-1])
     module = importlib.import_module(package)
     return getattr(module, attr)
 
@@ -22,7 +22,7 @@ _INVALID_MIDDLEWARE_MESSAGE = "%s is not a subclass of deez.middleware.Middlewar
 
 
 def middleware_resolver(
-        middleware_classes: List[Union[str, Dict[str, str]]]
+    middleware_classes: List[Union[str, Dict[str, str]]]
 ) -> List[Middleware]:
     """
     Iteratively resolves middleware classes and returns a list of
@@ -36,11 +36,13 @@ def middleware_resolver(
         if isinstance(klass, str):
             instance = import_string(klass)()
         else:
-            instance = import_string(klass['middleware'])(path_regex=klass['scope'])
+            instance = import_string(klass["middleware"])(path_regex=klass["scope"])
 
         # for the time being, we're being strict about what actually is considered
         # a valid middleware class.
-        assert isinstance(instance, Middleware), _INVALID_MIDDLEWARE_MESSAGE % instance.__class__.__name__
+        assert isinstance(instance, Middleware), (
+            _INVALID_MIDDLEWARE_MESSAGE % instance.__class__.__name__
+        )
 
         middlewares.append(instance)
 

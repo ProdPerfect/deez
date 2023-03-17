@@ -10,7 +10,7 @@ except ImportError:
     from json import JSONDecodeError  # type: ignore
 
 _logger = logging.getLogger(__file__)
-_methods_with_bodies = {'POST', 'PATCH', 'PUT'}
+_methods_with_bodies = {"POST", "PATCH", "PUT"}
 
 
 class Header:
@@ -38,9 +38,9 @@ class Get:
 
 class Request:
     def __init__(
-            self,
-            event: Dict[str, Any],
-            context: Dict[str, Any],
+        self,
+        event: Dict[str, Any],
+        context: Dict[str, Any],
     ) -> None:
         self.path: str
         self.method: str
@@ -48,30 +48,29 @@ class Request:
         self.aws_event = event
         self.aws_context = context
         self.version = self.aws_event.get(
-            'version',
-            '1.0'
+            "version", "1.0"
         )  # non-http api events don't provide version information
 
         self._build()
 
     def _build(self) -> None:
-        if self.version == '1.0':
-            self.path = self.aws_event['path']
-            self.method = self.aws_event['httpMethod']
-        elif self.version == '2.0':
-            context = self.aws_event['requestContext']
-            self.path = context['http']['path']
-            self.method = context['http']['method']
-            self.cookies = self.aws_event.get('cookies', [])
+        if self.version == "1.0":
+            self.path = self.aws_event["path"]
+            self.method = self.aws_event["httpMethod"]
+        elif self.version == "2.0":
+            context = self.aws_event["requestContext"]
+            self.path = context["http"]["path"]
+            self.method = context["http"]["method"]
+            self.cookies = self.aws_event.get("cookies", [])
 
-        self.GET = Get(self.aws_event.get('queryStringParameters', {}))
-        self.HEADERS = Header(self.aws_event.get('headers', {}))
+        self.GET = Get(self.aws_event.get("queryStringParameters", {}))
+        self.HEADERS = Header(self.aws_event.get("headers", {}))
 
         if self.method in _methods_with_bodies:
-            self.POST = Post(self.aws_event.get('body', {}))
+            self.POST = Post(self.aws_event.get("body", {}))
 
     def __str__(self) -> str:
-        return '%s %s' % (self.method, self.path)
+        return "%s %s" % (self.method, self.path)
 
     def __getattr__(self, item):
         return method_proxy(self, item)

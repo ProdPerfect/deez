@@ -33,15 +33,16 @@ class Deez:
 
     def _setup(self) -> None:
         from deez.conf import settings
+
         self.settings = settings
         self.settings.configure()
 
-        self._logger = get_logger('deez')
+        self._logger = get_logger("deez")
 
         # notify subscribers that setup has started
         application_setup_started.send(self)
 
-        if hasattr(settings, 'MIDDLEWARE'):
+        if hasattr(settings, "MIDDLEWARE"):
             self.middleware = middleware_resolver(settings.MIDDLEWARE)
             self.middleware_reversed = list(reversed(self.middleware))
 
@@ -51,15 +52,16 @@ class Deez:
             middleware=self.middleware,
             route_patterns=self.route_patterns,
             middleware_reversed=self.middleware_reversed,
-            exception_handler=import_string(settings.EXCEPTION_HANDLER)
+            exception_handler=import_string(settings.EXCEPTION_HANDLER),
         )
 
         # notify subscribers that setup has finished
         application_setup_finished.send(self)
 
     def register_route(
-            self, path: Union[str, Path],
-            resource_class: Union[Type[Resource], None] = None,
+        self,
+        path: Union[str, Path],
+        resource_class: Union[Type[Resource], None] = None,
     ) -> None:
         """
         route registration
@@ -77,9 +79,11 @@ class Deez:
 
     def _validate_path(self, path: str) -> None:
         if path in self.routes:
-            raise DuplicateRouteError(f"\"{path}\" already defined")
+            raise DuplicateRouteError(f'"{path}" already defined')
 
-    def _register(self, path: Union[str, Path], resource: Union[Type[Resource], None] = None) -> None:
+    def _register(
+        self, path: Union[str, Path], resource: Union[Type[Resource], None] = None
+    ) -> None:
         """
         Add a path to its internal registry with some validation
         to prevent duplicate routes from being registered.
@@ -97,8 +101,9 @@ class Deez:
                 url_resource = resource
 
         assert url_resource is not None
-        assert issubclass(url_resource, Resource), \
-            "resource must be a subclass of deez.resource.Resource"
+        assert issubclass(
+            url_resource, Resource
+        ), "resource must be a subclass of deez.resource.Resource"
 
         self._validate_path(url_path)
 
@@ -107,6 +112,8 @@ class Deez:
         self.routes[url_path] = url_resource
         self.route_patterns.append(re.compile(str(url_path)))
 
-    def process_request(self, event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
+    def process_request(
+        self, event: Dict[str, Any], context: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """this method should be used in the lambda entry point"""
         return self.router.route(event, context)
