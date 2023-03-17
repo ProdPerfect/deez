@@ -5,9 +5,9 @@ try:
     import orjson as json
 except ImportError:
     try:
-        import ujson as json
+        import ujson as json  # type: ignore
     except ImportError:
-        import json
+        import json  # type: ignore
 
 
 def json_loads(s: AnyStr) -> Any:
