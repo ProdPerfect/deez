@@ -24,10 +24,10 @@ class Resource:
     def head(self, request, *args, **kwargs) -> JsonResponse:
         # https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD
 
-        if not hasattr(self, "get"):
+        func: Callable = getattr(self, "get")
+        if func is None:
             return JsonResponse(data={}, status_code=405)
 
-        func: Callable = getattr(self, "get")
         if asyncio.iscoroutinefunction(func):
             response = asyncio.run(func(request, *args, **kwargs))
         else:
