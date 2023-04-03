@@ -1,13 +1,13 @@
 import re
 from logging import Logger
-from typing import Type, Union, List, Dict, Pattern, Any
+from typing import Any, Dict, List, Pattern, Type, Union
 
 from deez.conf import Setting
 from deez.core.router import Router
 from deez.core.signals import (
+    application_routes_registered,
     application_setup_finished,
     application_setup_started,
-    application_routes_registered,
 )
 from deez.exceptions import DuplicateRouteError
 from deez.logger import get_logger
@@ -112,8 +112,33 @@ class Deez:
         self.routes[url_path] = url_resource
         self.route_patterns.append(re.compile(str(url_path)))
 
+    def _setup_hooks(self, app: "Deez") -> None:
+        self.setup_hook(app=app)
+
+    def _teardown_hooks(self, app: "Deez") -> None:
+        self.teardown_hook(app=app)
+
+    def setup_hook(self, app: "Deez") -> None:
+        """
+        setup hook
+
+        can be used to setup any global state, such as database connections.
+        """
+        pass
+
+    def teardown_hook(self, app: "Deez") -> None:
+        """
+        teardown hook
+
+        can be used to teardown any global state, such as database connections.
+        """
+        pass
+
     def process_request(
         self, event: Dict[str, Any], context: Dict[str, Any]
     ) -> Dict[str, Any]:
         """this method should be used in the lambda entry point"""
-        return self.router.route(event, context)
+        self._setup_hooks(app=self)
+        result = self.router.route(event, context)
+        self._teardown_hooks(app=self)
+        return result
