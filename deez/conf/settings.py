@@ -29,7 +29,7 @@ class Setting:
     def __init__(self) -> None:
         self._loaded = False
         self._configured = False
-        self._extended = {}
+        self._extended: Dict[str, Any] = {}
 
     def _set_default_settings(self) -> None:
         for setting in dir(default_settings):
