@@ -96,7 +96,9 @@ class Router:
         return matched_patterns[0]
 
     def _prepare_request(
-        self, middleware: List[Middleware], request: Request
+        self,
+        middleware: List[Middleware],
+        request: Request,
     ) -> Request:
         for mw in middleware:
             if hasattr(mw, "before_request") and mw.run(request.path):
@@ -104,7 +106,10 @@ class Router:
         return request
 
     def _prepare_response(
-        self, middleware: List[Middleware], request: Request, response: Response
+        self,
+        middleware: List[Middleware],
+        request: Request,
+        response: Response,
     ) -> Response:
         for mw in middleware:
             if hasattr(mw, "before_response") and mw.run(request.path):
@@ -112,7 +117,9 @@ class Router:
         return response
 
     def execute(
-        self, event: Dict[str, Any], context: Dict[str, Any]
+        self,
+        event: Dict[str, Any],
+        context: Dict[str, Any],
     ) -> Tuple[Optional[str], int, Dict[str, Any], str]:
         """
         This is where the resource calling and middleware execution _really_ happens.

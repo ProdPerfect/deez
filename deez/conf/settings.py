@@ -1,13 +1,14 @@
 import importlib
 import os
-from typing import Dict, Any, List, Union
+from types import ModuleType
+from typing import Any, Dict, List, Union
 
 from deez.conf import default_settings
 from deez.core.signals import settings_configured
 from deez.helpers import method_proxy
 
 
-def import_settings_module():
+def import_settings_module() -> ModuleType:
     _settings_module = os.getenv("PROJECT_SETTINGS_MODULE")
     assert _settings_module is not None, (
         "You must set PROJECT_SETTINGS_MODULE "
@@ -25,17 +26,17 @@ class Setting:
     ACCESS_CONTROL_MAX_AGE: int
     ACCESS_CONTROL_ALLOW_ORIGIN: str
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._loaded = False
         self._configured = False
         self._extended = {}
 
-    def _set_default_settings(self):
+    def _set_default_settings(self) -> None:
         for setting in dir(default_settings):
             if setting.isupper():
                 setattr(self, setting, getattr(default_settings, setting))
 
-    def _set_user_settings(self):
+    def _set_user_settings(self) -> None:
         imp = import_settings_module()
         for setting in dir(imp):
             if setting.isupper():
@@ -53,7 +54,7 @@ class Setting:
 
         settings_configured.send(self)
 
-    def __getattr__(self, item):
+    def __getattr__(self, item) -> Any:
         if not self._configured:
             raise RuntimeError(
                 "Settings have not yet been configured. "

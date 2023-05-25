@@ -1,11 +1,11 @@
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Union
 
 
 def api_gateway_response(
     status_code: int,
-    data: Union[Optional[str], Dict[str, Any]],
+    data: Any,
     content_type: str = "application/json",
-    extra_headers: Optional[Dict[str, str]] = None,
+    extra_headers: Union[Dict[str, str], None] = None,
 ) -> Dict[str, Any]:
     """
     Response formatted in a way that API Gateway

@@ -1,15 +1,8 @@
-import logging
-from typing import Any, Dict, List, Union, AnyStr
+from typing import Any, AnyStr, Dict, List, Union
 
 from deez.contrib.serialization import json_loads
 from deez.helpers import method_proxy
 
-try:
-    from ujson import JSONDecodeError  # type: ignore
-except ImportError:
-    from json import JSONDecodeError  # type: ignore
-
-_logger = logging.getLogger(__file__)
 _methods_with_bodies = {"POST", "PATCH", "PUT"}
 
 
@@ -72,5 +65,5 @@ class Request:
     def __str__(self) -> str:
         return "%s %s" % (self.method, self.path)
 
-    def __getattr__(self, item):
+    def __getattr__(self, item) -> Any:
         return method_proxy(self, item)

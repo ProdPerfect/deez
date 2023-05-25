@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 from deez.contrib.serialization import json_dumps
 
@@ -10,8 +10,8 @@ class Response:
         data: Any = None,
         status_code: int = 200,
         headers: Optional[Dict[str, Any]] = None,
-        content_type: str = None,
-    ):
+        content_type: Union[str, None] = None,
+    ) -> None:
         self.data = data
         self.headers = {}
         if headers:
@@ -25,7 +25,7 @@ class Response:
 
 
 class NoContentResponse(Response):
-    def __init__(self, headers: Dict[str, Any] = None):
+    def __init__(self, headers: Union[Dict[str, Any], None] = None) -> None:
         super().__init__(headers=headers, status_code=204)
 
     def render(self, *args, **kwargs) -> Optional[str]:
@@ -38,7 +38,7 @@ class JsonResponse(Response):
         data=None,
         status_code: int = 200,
         headers: Optional[Dict[str, Any]] = None,
-    ):
+    ) -> None:
         super().__init__(
             data=data,
             status_code=status_code,
@@ -55,8 +55,8 @@ class HttpRedirectResponse(Response):
         self,
         location: str,
         status_code: int = 302,
-        headers: Dict[str, Any] = None,
-    ):
+        headers: Union[Dict[str, Any], None] = None,
+    ) -> None:
         location_header = {"Location": location}
         if headers:
             headers.update(location_header)
