@@ -10,7 +10,7 @@ Gateway.
 
 ### Requirements
 
-- Python 3.8+
+- Python 3.9+
 - Blinker 1.4+
 
 ### Installation
