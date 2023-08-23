@@ -6,7 +6,10 @@ from deez.urls.parsers import alias_translator
 
 class Path:
     def __init__(
-        self, regex: str, resource: Type[Resource], raw_url: Optional[str] = None
+        self,
+        regex: str,
+        resource: Type[Resource],
+        raw_url: Optional[str] = None,
     ):
         self.regex = regex
         self.raw_url = raw_url

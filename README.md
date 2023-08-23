@@ -1,3 +1,7 @@
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Checks](https://github.com/ProdPerfect/deez/actions/workflows/checks.yml/badge.svg)](https://github.com/ProdPerfect/deez/actions/workflows/checks.yml)
+[![PyPI Release](https://github.com/ProdPerfect/deez/actions/workflows/release.yaml/badge.svg)](https://github.com/ProdPerfect/deez/actions/workflows/release.yaml)
+
 # Deez
 
 A little library to simplify building small APIs on top of AWS Lambda and API

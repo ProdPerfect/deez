@@ -102,9 +102,7 @@ class Router:
 
         # TODO: experimental asyncio support: should be looked at more closely?
         if asyncio.iscoroutinefunction(resource_instance.dispatch):
-            response = asyncio.run(
-                resource_instance.dispatch(request=request, **kwargs)
-            )
+            response = asyncio.run(resource_instance.dispatch(request=request, **kwargs))
         else:
             response = resource_instance.dispatch(request=request, **kwargs)
         if not response:
@@ -123,9 +121,7 @@ class Router:
     def route(self, event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         """entry point into router"""
         try:
-            response, status_code, headers, content_type = self.execute(
-                event=event, context=context
-            )
+            response, status_code, headers, content_type = self.execute(event=event, context=context)
             return api_gateway_response(
                 status_code=status_code,
                 data=response,

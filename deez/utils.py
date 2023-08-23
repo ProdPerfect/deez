@@ -21,9 +21,7 @@ def import_string(module_path: str) -> Any:
 _INVALID_MIDDLEWARE_MESSAGE = "%s is not a subclass of deez.middleware.Middleware"
 
 
-def middleware_resolver(
-    middleware_classes: List[Union[str, Dict[str, str]]]
-) -> List[Middleware]:
+def middleware_resolver(middleware_classes: List[Union[str, Dict[str, str]]]) -> List[Middleware]:
     """
     Iteratively resolves middleware classes and returns a list of
     middleware instances to be used in Deez Router.
@@ -40,9 +38,7 @@ def middleware_resolver(
 
         # for the time being, we're being strict about what actually is considered
         # a valid middleware class.
-        assert isinstance(instance, Middleware), (
-            _INVALID_MIDDLEWARE_MESSAGE % instance.__class__.__name__
-        )
+        assert isinstance(instance, Middleware), _INVALID_MIDDLEWARE_MESSAGE % instance.__class__.__name__
 
         middlewares.append(instance)
 

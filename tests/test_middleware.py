@@ -12,9 +12,7 @@ from tests.mock_event import event_v1
 
 class HelloWorldResource(Resource):
     def get(self, request, *args, **kwargs) -> JsonResponse:
-        return JsonResponse(
-            data={"message": "hello world", "user": request.user.as_dict()}
-        )
+        return JsonResponse(data={"message": "hello world", "user": request.user.as_dict()})
 
 
 @mock.patch.object(settings, "MIDDLEWARE", ["tests.middleware.TestMiddleware"])

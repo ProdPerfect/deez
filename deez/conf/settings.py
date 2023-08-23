@@ -13,9 +13,7 @@ def import_settings_module() -> ModuleType:
     _settings_module = os.getenv("PROJECT_SETTINGS_MODULE")
     if _settings_module is None:
         raise DeezError(
-            "You must set PROJECT_SETTINGS_MODULE "
-            "as an environment variable with a path to "
-            "you settings module."
+            "You must set PROJECT_SETTINGS_MODULE " "as an environment variable with a path to " "you settings module."
         )
     setting = importlib.import_module(_settings_module)
     return setting

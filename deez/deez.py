@@ -84,7 +84,9 @@ class Deez:
             raise DuplicateRouteError(f'"{path}" already defined')
 
     def _register(
-        self, path: Union[str, Path], resource: Union[Type[Resource], None] = None
+        self,
+        path: Union[str, Path],
+        resource: Union[Type[Resource], None] = None,
     ) -> None:
         """
         Add a path to its internal registry with some validation
@@ -103,9 +105,7 @@ class Deez:
                 url_resource = resource
 
         assert url_resource is not None
-        assert issubclass(
-            url_resource, Resource
-        ), "resource must be a subclass of deez.resource.Resource"
+        assert issubclass(url_resource, Resource), "resource must be a subclass of deez.resource.Resource"
 
         self._validate_path(url_path)
 
@@ -114,9 +114,7 @@ class Deez:
         self.routes[url_path] = url_resource
         self.route_patterns.append(re.compile(str(url_path)))
 
-    def process_request(
-        self, event: Dict[str, Any], context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def process_request(self, event: Dict[str, Any], context: Dict[str, Any]) -> Dict[str, Any]:
         """this method should be used in the lambda entry point"""
         request_started.send(self, event=event, context=context)
         response = self.router.route(event, context)
