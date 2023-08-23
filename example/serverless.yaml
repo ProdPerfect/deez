@@ -1,0 +1,35 @@
+service: data-api
+frameworkVersion: "2"
+
+provider:
+  name: aws
+  runtime: python3.10
+  region: us-east-1
+  versionFunctions: true
+  logRetentionInDays: 7
+
+functions:
+  foo:
+    handler: entrypoint.handler
+    description: Some description
+    events:
+      - http:
+          path: "/{proxy+}"
+          method: any
+          private: true
+          integration: lambda-proxy
+          cors:
+            origin: "*"
+    timeout: 10
+    memorySize: 128
+    environment:
+      DEBUG: 0
+      PROJECT_SETTINGS_MODULE: app.settings
+
+plugins:
+  - serverless-python-requirements
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    useStaticCache: true
+    useDownloadCache: true

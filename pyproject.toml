@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "deez"
+version = "1.0.2"
+description = "A little library to simplify building small APIs on top of API Gateway and Lambda."
+authors = ["Lemuel Boyce <lemuel@prodperfect.com>, Daniel Brady <brady@prodperfect.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+blinker = ">=1.4"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+black = "^23.7.0"
+mypy = "^1.5.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
