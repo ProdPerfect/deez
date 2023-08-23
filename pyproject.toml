@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "deez"
-version = "1.0.2"
+version = "1.0.3"
 description = "A little library to simplify building small APIs on top of API Gateway and Lambda."
 authors = ["Lemuel Boyce <lemuel@prodperfect.com>", "Daniel Brady <brady@prodperfect.com>"]
 license = "MIT"
