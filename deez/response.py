@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Dict, Union, Tuple
+from typing import Any, Dict, List, Union, Tuple
 
 from deez.contrib.serialization import json_dumps
 
@@ -35,7 +35,7 @@ class NoContentResponse(BaseResponse):
 class JsonResponse(BaseResponse):
     def __init__(
         self,
-        data: Union[Dict[str, Any], None] = None,
+        data: Union[Dict[str, Any], List[Any], None] = None,
         status_code: int = 200,
         headers: Union[Dict[str, Any], None] = None,
     ) -> None:
