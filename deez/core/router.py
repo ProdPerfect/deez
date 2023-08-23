@@ -1,16 +1,29 @@
 import asyncio
+from dataclasses import dataclass
 from functools import lru_cache
-from typing import Any, Dict, List, Match, Tuple, Union
+from typing import Any, Dict, List, Match, Tuple, Type, Union
 
 from deez.core.api_gateway import api_gateway_response
-from deez.exceptions import (
-    NoResponseError,
-    NotFound,
-)
+from deez.exceptions import NoResponseError, NotFound
 from deez.logger import get_logger
 from deez.middleware import Middleware
 from deez.request import Request
+from deez.resource import Resource
 from deez.response import BaseResponse
+
+
+@dataclass
+class RouteMatch:
+    """
+    A route match is a tuple of a compiled regex pattern and the resource class
+    that should be called when a match is found.
+    """
+
+    re_match: Match
+    resource: Type[Resource]
+
+    def __bool__(self) -> bool:
+        return all([self.re_match, self.resource])
 
 
 class Router:
@@ -38,15 +51,19 @@ class Router:
         self._logger = get_logger("deez.router")
 
     @lru_cache(maxsize=None)
-    def find_route_match(self, path: str, method: str) -> Union[None, Match]:
+    def find_route_match(self, path: str, method: str) -> Union[RouteMatch, None]:
         """
         Find a route match for the given path and method. If no match is found,
         return None, which will raise a 404.
         """
+
         for pattern in self._route_patterns:
             match = pattern.match(path)
-            if match and hasattr(self._routes[match.re.pattern], method):
-                return match
+            if match and match.re.pattern in self._routes:
+                resource = self._routes[match.re.pattern]
+                # check if the resource has the method we're looking for
+                if hasattr(resource, method):
+                    return RouteMatch(re_match=match, resource=resource)
 
         return None
 
@@ -77,10 +94,15 @@ class Router:
         context: Dict[str, Any],
     ) -> Tuple[Union[bytes, None], int, Dict[str, Any], str]:
         """
-        This is where the resource calling and middleware execution _really_ happens.
-        Probably deserves a much longer comment, but I feel like for now it's pretty
-        self-explanatory.
+        Entry point into the router.
+
+        At a high level, the router does the following:
+        1. Find a route match
+        2. Instantiate the resource class
+        3. Call the resource class
+        4. Return the response
         """
+
         request = Request(event=event, context=context)
         path = request.path
         method = request.method.lower()
@@ -89,12 +111,12 @@ class Router:
         if not match:
             raise NotFound(f"{method.upper()} '{path}' not found!")
 
-        resource_class = self._routes[match.re.pattern]
-        resource_instance = resource_class()
+        # instantiate the resource class
+        resource_instance = match.resource()
 
         # stores url arguments on the resource object, so they can
         # be used in places like middleware. e.g.: `resource.kwargs`
-        kwargs = match.groupdict()
+        kwargs = match.re_match.groupdict()
         setattr(resource_instance, "kwargs", kwargs)
 
         # middleware that needs to run before calling the resource
