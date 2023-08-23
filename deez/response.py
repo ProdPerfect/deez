@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Dict, Union
+from typing import Any, Dict, Union, Tuple
 
 from deez.contrib.serialization import json_dumps
 
@@ -20,7 +20,7 @@ class BaseResponse:
         self.content_type = content_type
 
     @abstractmethod
-    def render(self, *args, **kwargs) -> Union[bytes, None]:
+    def render(self, *args: Tuple[Any], **kwargs: Dict[str, Any]) -> Union[bytes, None]:
         pass
 
 
@@ -28,7 +28,7 @@ class NoContentResponse(BaseResponse):
     def __init__(self, headers: Union[Dict[str, Any], None] = None) -> None:
         super().__init__(headers=headers, status_code=204)
 
-    def render(self, *args, **kwargs) -> None:
+    def render(self, *args: Tuple[Any], **kwargs: Dict[str, Any]) -> None:
         return None
 
 
@@ -45,5 +45,5 @@ class JsonResponse(BaseResponse):
             headers=headers,
         )
 
-    def render(self, *args, **kwargs) -> bytes:
+    def render(self, *args: Tuple[Any], **kwargs: Dict[str, Any]) -> bytes:
         return json_dumps(self.data)

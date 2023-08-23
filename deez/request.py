@@ -50,7 +50,7 @@ class HeaderDict(_DictMixin):
         super().__init__(data)
         self._lowercase_keys(self._data)
 
-    def _lowercase_keys(self, data) -> None:
+    def _lowercase_keys(self, data: Dict[str, str]) -> None:
         """
         Lowercase all keys so that headers are case-insensitive.
         """
@@ -121,5 +121,5 @@ class Request:
     def __str__(self) -> str:
         return "%s %s" % (self.method, self.path)
 
-    def __getattr__(self, item) -> Any:
+    def __getattr__(self, item: str) -> Any:
         return method_proxy(self, item)

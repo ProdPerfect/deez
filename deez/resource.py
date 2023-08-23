@@ -1,13 +1,12 @@
-import asyncio
 import sys
-from typing import Callable
+from typing import Any, Callable, Set, Dict
 
 from deez.conf import settings
 from deez.exceptions import MethodNotAllowed
 from deez.request import Request
 from deez.response import JsonResponse
 
-_HTTP_METHODS = {"get", "post", "put", "patch", "delete", "head", "options"}
+_HTTP_METHODS: Set[str] = {"get", "post", "put", "patch", "delete", "head", "options"}
 
 
 class Resource:
@@ -22,21 +21,18 @@ class Resource:
                 methods.append(m.upper())
         return ", ".join(methods)
 
-    async def head(self, request, **kwargs) -> JsonResponse:
+    def head(self, request: Request, **kwargs: Dict[str, Any]) -> JsonResponse:
         # https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD
-        func: Callable = getattr(self, "get")
+        func: Callable[..., JsonResponse] = getattr(self, "get")
         if func is None:
             return JsonResponse(data={}, status_code=405)
 
-        if asyncio.iscoroutinefunction(func):
-            response = asyncio.run(func(request, **kwargs))
-        else:
-            response = func(request, **kwargs)
+        response = func(request, **kwargs)
         response.data = {}
         response.headers["Content-Length"] = sys.getsizeof(response.data)
         return response
 
-    async def options(self, request, **kwargs) -> JsonResponse:
+    def options(self, request: Request, **kwargs: Dict[str, Any]) -> JsonResponse:
         headers = {
             "Access-Control-Max-Age": settings.ACCESS_CONTROL_MAX_AGE,
             "Access-Control-Allow-Origin": settings.ACCESS_CONTROL_ALLOW_ORIGIN,
@@ -44,7 +40,7 @@ class Resource:
         }
         return JsonResponse(data={}, status_code=204, headers=headers)
 
-    async def dispatch(self, request: Request, **kwargs) -> JsonResponse:
+    def dispatch(self, request: Request, **kwargs: Dict[str, Any]) -> JsonResponse:
         """
         Tries to call the underlying user-implemented method that is responsible for
         serving the HTTP Method.
@@ -54,8 +50,6 @@ class Resource:
             raise MethodNotAllowed("method not allowed!")
 
         func: Callable[..., JsonResponse] = getattr(self, method)
-        if asyncio.iscoroutinefunction(func):
-            return await func(request=request, **kwargs)
         return func(request=request, **kwargs)
 
     def __str__(self) -> str:

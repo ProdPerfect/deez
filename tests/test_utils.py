@@ -3,13 +3,13 @@ import re
 from deez.utils import middleware_resolver
 
 
-def test_resolve_default_middleware():
+def test_resolve_default_middleware() -> None:
     refs = ["tests.middleware.TestMiddleware"]
     resolved_refs = middleware_resolver(refs)
     assert len(resolved_refs) == 1
 
 
-def test_resolve_scoped_middleware():
+def test_resolve_scoped_middleware() -> None:
     refs = [
         {
             "middleware": "tests.middleware.TestMiddleware",

@@ -54,7 +54,7 @@ class Setting:
 
         settings_configured.send(self)
 
-    def __getattr__(self, item) -> Any:
+    def __getattr__(self, item: str) -> Any:
         if not self._configured:
             raise DeezError(
                 "Settings have not yet been configured. "

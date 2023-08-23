@@ -18,6 +18,11 @@ mypy = "^1.5.1"
 [tool.black]
 line-length = 120
 
+[tool.mypy]
+python_version = "3.9"
+disallow_untyped_defs = true
+exclude = ["build", "dist", ".venv", "tests", "example"]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

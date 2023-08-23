@@ -1,7 +1,6 @@
-import asyncio
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import Any, Dict, List, Match, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Match, Tuple, Type, Union, Pattern
 
 from deez.core.api_gateway import api_gateway_response
 from deez.exceptions import NoResponseError, NotFound
@@ -9,7 +8,11 @@ from deez.logger import get_logger
 from deez.middleware import Middleware
 from deez.request import Request
 from deez.resource import Resource
-from deez.response import BaseResponse
+from deez.response import JsonResponse
+import typing
+
+if typing.TYPE_CHECKING:
+    from deez.conf import Setting
 
 
 @dataclass
@@ -35,12 +38,12 @@ class Router:
     def __init__(
         self,
         *,
-        routes,
-        route_patterns,
-        settings,
-        middleware,
-        middleware_reversed,
-        exception_handler,
+        routes: Dict[str, Type[Resource]],
+        route_patterns: List[Pattern[str]],
+        settings: "Setting",
+        middleware: List[Middleware],
+        middleware_reversed: List[Middleware],
+        exception_handler: Callable[..., Dict[str, Any]],
     ) -> None:
         self._routes = routes
         self._settings = settings
@@ -81,8 +84,8 @@ class Router:
         self,
         middleware: List[Middleware],
         request: Request,
-        response: BaseResponse,
-    ) -> BaseResponse:
+        response: JsonResponse,
+    ) -> JsonResponse:
         for mw in middleware:
             if hasattr(mw, "before_response") and mw.run(request.path):
                 mw.before_response(response=response)
@@ -122,11 +125,7 @@ class Router:
         # middleware that needs to run before calling the resource
         request = self._prepare_request(self._middleware, request)
 
-        # TODO: experimental asyncio support: should be looked at more closely?
-        if asyncio.iscoroutinefunction(resource_instance.dispatch):
-            response = asyncio.run(resource_instance.dispatch(request=request, **kwargs))
-        else:
-            response = resource_instance.dispatch(request=request, **kwargs)
+        response = resource_instance.dispatch(request=request, **kwargs)
         if not response:
             raise NoResponseError(f"{resource_instance} did not return a response")
 

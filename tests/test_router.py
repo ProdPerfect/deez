@@ -14,7 +14,7 @@ from .mock_event import event_v1
 
 def _make_resource() -> Type[Resource]:
     class DynamicResource(Resource):
-        async def get(self, request, *args, **kwargs) -> JsonResponse:
+        def get(self, request, *args, **kwargs) -> JsonResponse:
             return JsonResponse({"foo": "bar"})
 
     return DynamicResource
